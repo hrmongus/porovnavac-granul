@@ -1,6 +1,6 @@
 # Porovnávač granúl
 
-Porovnávač krmív (granúl) pre psov a mačky – zloženie a cena za kg naprieč obchodmi.
+Analyzér zloženia granúl pre psov – rozpad zloženia na zložky, vysvetlenia a skóre podľa verejnej metodiky.
 
 ## Databáza (Supabase)
 
@@ -12,21 +12,23 @@ Projekt: `https://mqgukyfttafavlnlaoyj.supabase.co`
 4. Skopíruj `.env.example` do `.env`
 
 ### Tabuľky
-- `brands` – značky
-- `products` – granule vrátane analytických zložiek (%), energie a zloženia
-- `shops` – obchody
-- `prices` – ceny balení; `price_per_kg` sa počíta automaticky
-- pohľad `product_comparison` – produkt + najnižšia cena/kg + bielkoviny v sušine
+- `methodology_versions` – verejná, verzovaná metodika skórovania
+- `ingredients` + `ingredient_aliases` – databáza zložiek a ich variantov názvov (SK/CZ/EN)
+- `brands`, `products` – značky a granule s predpočítaným skóre
+- `product_ingredients` – rozpad zloženia z etikety na zložky (`ingredient_id` null = neznáma)
+- `leads`, `analyses` – e-maily so súhlasom (GDPR) a uložené analýzy; zapisuje **len server**
+- `error_reports` – verejné nahlásenie chyby v zložení
+- pohľad `unknown_ingredients_queue` – neznáme zložky na doplnenie (neverejný)
 
-RLS: všetci môžu čítať, zapisovať sa dá len cez dashboard alebo `service_role` kľúčom.
+RLS: verejnosť (publishable key) smie čítať metodiku, zložky, značky a **aktívne** produkty
+a vložiť nové hlásenie chyby. `leads` a `analyses` zapisuje iba Edge Function so `service_role` kľúčom.
 
 ### Použitie v JS
 ```js
 import { createClient } from '@supabase/supabase-js'
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_PUBLISHABLE_KEY)
 const { data } = await supabase
-  .from('product_comparison')
-  .select('*')
-  .eq('animal', 'pes')
-  .order('min_price_per_kg')
+  .from('products')
+  .select('slug, name, score_total, brands(name)')
+  .order('score_total', { ascending: false })
 ```
