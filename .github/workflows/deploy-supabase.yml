@@ -1,0 +1,27 @@
+# Každý push do main = okamžité nasadenie DB migrácií do produkcie (Supabase)
+name: Deploy Supabase (production)
+
+on:
+  push:
+    branches: [main]
+    paths: ['supabase/migrations/**', '.github/workflows/deploy-supabase.yml']
+  workflow_dispatch:
+
+concurrency:
+  group: supabase-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 3.4.0
+      # Aplikuje len nové súbory zo supabase/migrations (seed.sql sa do produkcie NEPÚŠŤA)
+      - name: Push migrations
+        run: supabase db push --db-url "$SUPABASE_DB_URL" --yes
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}

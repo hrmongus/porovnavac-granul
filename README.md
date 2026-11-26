@@ -11,6 +11,13 @@ Projekt: `https://mqgukyfttafavlnlaoyj.supabase.co`
 3. (voliteľné) Spusti `supabase/seed.sql` pre ukážkové dáta
 4. Skopíruj `.env.example` do `.env`
 
+### Nasadenie do produkcie
+Jediná vetva je `main` a každý push do nej automaticky aplikuje nové migrácie
+zo `supabase/migrations/` do produkčnej databázy (GitHub Actions → `deploy-supabase.yml`).
+
+Jednorazové nastavenie: GitHub → Settings → Secrets and variables → Actions → secret
+`SUPABASE_DB_URL` = connection string zo Supabase (Connect → **Session pooler**, s heslom DB).
+
 ### Tabuľky
 - `methodology_versions` – verejná, verzovaná metodika skórovania
 - `ingredients` + `ingredient_aliases` – databáza zložiek a ich variantov názvov (SK/CZ/EN)
