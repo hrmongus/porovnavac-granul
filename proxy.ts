@@ -1,31 +1,30 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { ACCESS_COOKIE, accessToken } from './lib/site-access';
 
-// Testovacia verzia: ak je nastavené SITE_PASSWORD, celý web je za jednoduchým heslom
-// (prehliadač zobrazí okno na meno a heslo; meno môže byť ľubovoľné).
+// Testovacia verzia: ak je nastavené SITE_PASSWORD, web je za stránkou s heslom (/heslo).
 // Pre verejné spustenie stačí premennú SITE_PASSWORD na hostingu zmazať.
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const password = process.env.SITE_PASSWORD;
   if (!password) return NextResponse.next();
 
-  const auth = request.headers.get('authorization') ?? '';
-  if (auth.startsWith('Basic ')) {
-    try {
-      const decoded = atob(auth.slice(6));
-      const given = decoded.slice(decoded.indexOf(':') + 1);
-      if (given === password) {
-        const res = NextResponse.next();
-        res.headers.set('X-Robots-Tag', 'noindex, nofollow');
-        return res;
-      }
-    } catch {
-      // neplatná hlavička – pokračuje sa výzvou na heslo
-    }
+  const { pathname, search } = request.nextUrl;
+  const open = pathname === '/heslo' || pathname === '/api/heslo';
+  const ok = request.cookies.get(ACCESS_COOKIE)?.value === (await accessToken(password));
+
+  let res: NextResponse;
+  if (open || ok) {
+    res = NextResponse.next();
+  } else if (pathname.startsWith('/api/')) {
+    res = NextResponse.json({ error: 'Testovacia verzia je chránená heslom. Obnov stránku.' }, { status: 401 });
+  } else {
+    const url = request.nextUrl.clone();
+    url.pathname = '/heslo';
+    url.search = `?next=${encodeURIComponent(pathname + search)}`;
+    res = NextResponse.redirect(url);
   }
-  return new NextResponse('Testovacia verzia analyzéra – zadajte heslo.', {
-    status: 401,
-    headers: { 'WWW-Authenticate': 'Basic realm="Analyzer - test", charset="UTF-8"', 'X-Robots-Tag': 'noindex' },
-  });
+  res.headers.set('X-Robots-Tag', 'noindex, nofollow');
+  return res;
 }
 
 export const config = {
