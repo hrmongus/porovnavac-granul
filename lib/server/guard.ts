@@ -2,9 +2,16 @@ import 'server-only';
 import { createHash } from 'crypto';
 import { adminClient, hasAdmin } from './admin';
 
+/** IP návštevníka (Netlify posiela x-nf-client-connection-ip, inde x-forwarded-for). */
+function clientIp(req: Request): string {
+  return req.headers.get('x-nf-client-connection-ip')
+    || (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim()
+    || req.headers.get('x-real-ip') || '';
+}
+
 /** Jednosmerný hash IP adresy (IP sa nikde neukladá). */
 export function clientHash(req: Request): string {
-  const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || req.headers.get('x-real-ip') || 'unknown';
+  const ip = clientIp(req) || 'unknown';
   const salt = process.env.RATE_LIMIT_SALT ?? process.env.SUPABASE_SECRET_KEY ?? '';
   return createHash('sha256').update(salt + ip).digest('hex').slice(0, 32);
 }
@@ -35,7 +42,7 @@ export async function verifyTurnstile(token: string | undefined | null, req: Req
   if (!secret) return true;
   if (!token) return false;
   const body = new URLSearchParams({ secret, response: token });
-  const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim();
+  const ip = clientIp(req);
   if (ip) body.set('remoteip', ip);
   try {
     const r = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body });

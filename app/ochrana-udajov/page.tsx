@@ -52,7 +52,7 @@ export default function PrivacyPage() {
       </p>
 
       <h2>Kde sú údaje uložené</h2>
-      <p>Databáza beží v službe Supabase, web v službe Vercel. Údaje nepredávame ani neposkytujeme výrobcom krmív.</p>
+      <p>Databáza beží v službe Supabase, web v službe Netlify. Údaje nepredávame ani neposkytujeme výrobcom krmív.</p>
 
       <h2>Tvoje práva</h2>
       <p>
