@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:scoring": "tsx --env-file=.env scripts/test-scoring.ts"
+    "test:scoring": "tsx --env-file=.env scripts/test-scoring.ts",
+    "digest:preview": "tsx --env-file=.env scripts/digest-preview.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.14.0",

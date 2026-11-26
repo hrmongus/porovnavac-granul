@@ -28,6 +28,7 @@ export async function POST(req: Request) {
   let text: string;
   let inputType: 'vyhladanie' | 'text' | 'foto';
   let productId: number | null = null;
+  let productHint: string | null = null;
   let product: ProductInfo | null = null;
   const productIdIn = Number(body.productId);
   if (productIdIn > 0) {
@@ -47,6 +48,7 @@ export async function POST(req: Request) {
   } else {
     text = typeof body.text === 'string' ? body.text.trim() : '';
     inputType = body.inputType === 'foto' ? 'foto' : 'text';
+    productHint = typeof body.productHint === 'string' ? body.productHint.trim().slice(0, 200) || null : null;
     if (text.length < 3) return jsonError('Vlož text zloženia.');
     if (text.length > MAX_LEN) return jsonError(`Text je príliš dlhý (najviac ${MAX_LEN} znakov).`);
   }
@@ -74,6 +76,7 @@ export async function POST(req: Request) {
     input_type: inputType,
     input_raw: text,
     product_id: productId,
+    product_hint: productHint,
     result,
     dog,
     unknown_items: r.unknown_items,

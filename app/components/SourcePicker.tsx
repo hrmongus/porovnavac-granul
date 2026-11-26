@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export type Source =
   | { kind: 'produkt'; productId: number; label: string }
-  | { kind: 'text'; text: string; fromPhoto: boolean };
+  | { kind: 'text'; text: string; fromPhoto: boolean; hint: string };
 
 type Mode = 'hladat' | 'foto' | 'text';
 interface Hit { id: number; brand: string; name: string }
@@ -34,6 +34,7 @@ export default function SourcePicker({ onReady, token, consumeToken }: {
   const [picked, setPicked] = useState<Detail | null>(null);
   const [text, setText] = useState('');
   const [fromPhoto, setFromPhoto] = useState(false);
+  const [hint, setHint] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,6 +48,16 @@ export default function SourcePicker({ onReady, token, consumeToken }: {
     return () => { clearTimeout(t); ctrl.abort(); };
   }, [q]);
 
+  // Neúspešné hľadanie (≥ 3 znaky, nič sa nenašlo, 1,5 s bez písania) sa anonymne uloží do fronty na doplnenie.
+  useEffect(() => {
+    const query = q.trim();
+    if (query.length < 3 || hits === null || hits.length > 0) return;
+    const t = setTimeout(() => {
+      fetch('/api/nenaslo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query }) }).catch(() => {});
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [q, hits]);
+
   async function pick(h: Hit) {
     setError(null);
     const r = await fetch(`/api/produkty?id=${h.id}`);
@@ -56,9 +67,7 @@ export default function SourcePicker({ onReady, token, consumeToken }: {
   }
 
   function notFound(target: Mode) {
-    if (q.trim().length >= 2) {
-      fetch('/api/nenaslo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: q }) }).catch(() => {});
-    }
+    if (!hint && q.trim().length >= 2) setHint(q.trim().slice(0, 200));
     setMode(target);
   }
 
@@ -149,8 +158,13 @@ export default function SourcePicker({ onReady, token, consumeToken }: {
             <textarea id="zlozenie" value={text} maxLength={5000} onChange={(e) => setText(e.target.value)}
               placeholder="Napr.: Kuracie mäso sušené (30 %), ryža, kurací tuk, sušená repná dužina, ľanové semeno…" />
           </div>
+          <div>
+            <label htmlFor="hint">Aké granule to sú? <span className="hint">(značka a názov, nepovinné)</span></label>
+            <input id="hint" type="text" maxLength={200} value={hint} onChange={(e) => setHint(e.target.value)} placeholder="Napr. Brit Care Adult Lamb" />
+            <p className="hint">Pomôže nám doplniť krmivo do databázy.</p>
+          </div>
           <button type="button" className="btn" disabled={text.trim().length < 3}
-            onClick={() => onReady({ kind: 'text', text, fromPhoto })}>Pokračovať</button>
+            onClick={() => onReady({ kind: 'text', text, fromPhoto, hint: hint.trim() })}>Pokračovať</button>
         </div>
       )}
 

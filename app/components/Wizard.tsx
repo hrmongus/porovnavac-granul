@@ -40,7 +40,7 @@ export default function Wizard() {
         body: JSON.stringify({
           dog,
           turnstileToken: token,
-          ...(source.kind === 'produkt' ? { productId: source.productId } : { text: source.text, inputType: source.fromPhoto ? 'foto' : 'text' }),
+          ...(source.kind === 'produkt' ? { productId: source.productId } : { text: source.text, inputType: source.fromPhoto ? 'foto' : 'text', productHint: source.hint }),
         }),
       });
       const j = await r.json();
@@ -66,7 +66,7 @@ export default function Wizard() {
 
       {step === 'pes' && (
         <>
-          {source && <p className="hint">Granule: <strong>{source.kind === 'produkt' ? source.label : 'zloženie z textu'}</strong></p>}
+          {source && <p className="hint">Granule: <strong>{source.kind === 'produkt' ? source.label : source.hint || 'zloženie z textu'}</strong></p>}
           {error && <p className="error" role="alert">{error}</p>}
           <DogQuestions value={dog} onChange={setDog} onDone={evaluate} onBack={() => setStep('vyber')} />
         </>
