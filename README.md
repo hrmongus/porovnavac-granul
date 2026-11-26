@@ -8,8 +8,11 @@ Projekt: `https://mqgukyfttafavlnlaoyj.supabase.co`
 
 1. Supabase Dashboard → **SQL Editor** → New query
 2. Vlož a spusti `supabase/migrations/20261119000000_init.sql`
-3. (voliteľné) Spusti `supabase/seed.sql` pre ukážkové dáta
-4. Skopíruj `.env.example` do `.env`
+3. Spusti `supabase/migrations/20261126000000_label_fields.sql` (stĺpce pre celú etiketu)
+4. Spusti postupne `supabase/data/granule_2026-11-19_cast1.sql`, `_cast2.sql`, `_cast3.sql`
+   (granule zo slovenského trhu; dajú sa spúšťať aj opakovane)
+5. `supabase/seed.sql` s ukážkovými dátami už netreba
+6. Skopíruj `.env.example` do `.env`
 
 ### Tabuľky
 - `methodology_versions` – verejná, verzovaná metodika skórovania
@@ -32,3 +35,17 @@ const { data } = await supabase
   .select('slug, name, score_total, brands(name)')
   .order('score_total', { ascending: false })
 ```
+
+## Dáta o granulách (`supabase/data/`)
+
+Zber 2026-11-19: **1 779 receptúr suchých krmív pre psov, 148 značiek** (+ Granula).
+Zdroje: BBZoo.sk, Zoohit.sk, Superzoo.sk a stránky výrobcov. Text etikety je doslovný, každý riadok má `source_url` a dátum.
+
+- `granule_2026-11-19.csv` – tá istá databáza ako tabuľka na kontrolu
+- `pokrytie_znaciek_2026-11-19.csv` – všetkých 278 značiek predávaných na SK (Heureka.sk) a koľko z nich je v databáze
+
+Stĺpce etikety v `products`: `composition_raw`, `analytical_raw`, `nutritional_additives_raw`,
+`trace_elements_raw` (všetko s EÚ kódom 3b / E1–E8), `technological_additives_raw`, `energy_raw`.
+`missing_fields` prázdne = úplná etiketa (860 produktov); inak uvádza, čo zdroj neuvádza
+(najčastejšie analytické zložky pri produktoch zo Zoohit.sk). `label_language`: 1 686 sk, 90 cs, 3 en.
+Skóre (`score_*`) zatiaľ nie je vypočítané.
