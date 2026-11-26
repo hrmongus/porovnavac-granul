@@ -10,6 +10,7 @@
     "test:scoring": "tsx --env-file=.env scripts/test-scoring.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.14.0",
     "@supabase/supabase-js": "^2.119.2",
     "marked": "^18.3.0",
     "next": "16.4.6",
