@@ -86,10 +86,13 @@ export default function AnalyzerForm() {
 
       {mode === 'foto' && (
         <div>
-          <label htmlFor="foto">
+          <p className="field-title">
             Odfoť zloženie na obale <span className="hint">(časť „Zloženie“, ostro a celé)</span>
+          </p>
+          <input id="foto" className="visually-hidden" type="file" accept="image/*" capture="environment" onChange={onPhoto} disabled={busy !== null || waitingForCheck} />
+          <label htmlFor="foto" className="btn file-btn" aria-disabled={busy !== null || waitingForCheck}>
+            {busy === 'prepis' ? 'Prepisujem…' : 'Odfotiť alebo vybrať fotku'}
           </label>
-          <input id="foto" type="file" accept="image/*" capture="environment" onChange={onPhoto} disabled={busy !== null || waitingForCheck} />
           <p className="hint">
             AI z fotky iba prepíše text zloženia, nič nehodnotí. Fotku neukladáme. Rozpoznaný text môžeš pred analýzou opraviť.
           </p>
