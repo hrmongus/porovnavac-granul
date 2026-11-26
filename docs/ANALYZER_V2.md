@@ -66,9 +66,10 @@ Rovnaké pravidlá pre každé krmivo – aj pre odporúčanú receptúru Granul
 | Šport, práca | bielkoviny < 24 % / tuk < 14 % | −15 / −10 | |
 | Málo pohybu, senior | tuk ≥ 18 % | −10 | |
 | Citlivé trávenie, „nesedí mu každé mäso“ (rovnaká podmienka ako `d.intolerance` v engine.js) | druhy zvierat len z mäsa, vnútorností, múčok a bielkovín (tuky a oleje sa nerátajú – rovnako ako „monoproteín“ v engine.js): 2 druhy −5, 3 a viac −15 / pšenica, kukurica alebo sója v top 5 −10 | −5 / −15 / −10 | „Má 4 druhy mäsa (morka, hus, kačica, kura). Pri citlivom trávení je vhodnejší jeden druh.“ |
-| Kĺby | zameranie „kĺby“, veľké/obrie plemeno alebo senior a krmivo nemá glukozamín ani chondroitín | −5 | |
+| Kĺby | zameranie „kĺby“, veľké/obrie plemeno alebo senior a krmivo nemá glukozamín ani chondroitín – hľadaj v zložení **aj** v nutričných doplnkových látkach **aj** v stopových prvkoch (`analytical_raw`, `nutritional_additives_raw`, `trace_elements_raw`; výrobcovia ich uvádzajú na rôznych miestach) | −5 | |
 
 - Fáza a veľkosť psa: z engine.js (`derive`). Fáza a veľkosť krmiva: `life_stage`, inak z názvu (puppy, junior, šteňa, štěně, adult, senior, mini, small, medium, maxi, large, giant).
+- Ak názov produktu začína značkou, značku pred názvom nezobrazuj druhýkrát („Panakei Panakei…“).
 - Ak chýbajú analytické zložky, kontroly tuku a bielkovín sa neodpočítajú, ale zobrazí sa „Obsah tuku výrobca neuvádza – nevieme posúdiť.“
 - Pásma: **85–100 Hodí sa výborne · 65–84 Hodí sa s výhradami · 40–64 Skôr sa nehodí · 0–39 Nehodí sa.**
 - Zobraz max. 3 dôvody (najväčšie odpočty). Pri zdravotných témach: „Nie je to veterinárna rada.“
