@@ -15,6 +15,7 @@ Projekt: `https://mqgukyfttafavlnlaoyj.supabase.co`
 6. Spusti `supabase/migrations/20261126040000_methodology_2_0.sql` (pridá metodiku 2.0 – súbor Granuly na ňu odkazuje)
 7. Spusti `supabase/data/granula_produkty_2026-11-26.sql` (receptúry Granula) a potom `supabase/data/zlozky_a_skore_v2.sql`
    (227 zložiek, 3 511 zápisov, skóre a ukazovatele 1 784 produktov podľa metodiky 2.0)
+   a ďalšie značky doplnené neskôr: `supabase/data/panakei_2026-11-26.sql`
 8. `supabase/seed.sql` s ukážkovými dátami už netreba
 9. Skopíruj `.env.example` do `.env`
 
