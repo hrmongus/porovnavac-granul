@@ -39,7 +39,7 @@ Psíčkar chce počuť tri veci: **je to dobré jedlo? sedí to môjmu psovi? ko
 Poradie na obrazovke:
 
 1. **Veľké skóre a verdikt** – napr. „72/100 · Kvalitné zloženie“ + „Lepšie ako 58 % granúl na slovenskom trhu“.
-2. **„Pre Bobíka“** – jedna z troch viet: ✅ Sedí / ⚠️ Sedí s výhradami / ❌ Nesedí + max. 3 dôvody (bod 5).
+2. **„Ako sa hodí pre Bobíka: 72/100 · Hodí sa s výhradami“** + max. 3 dôvody (bod 5).
 3. **„Bobík by mal zjesť cca 230 g denne“** – z engine.js (energia psa) a energie krmiva (bod 6). Ak chýbajú analytické zložky, riadok skry.
 4. **3 hlavné zistenia** – 1 najlepšie + max. 2 najhoršie, jednou vetou ľudskou rečou. Príklady:
    - „Mäso tvorí odhadom 48 % granúl. Bežné granule na trhu majú okolo 31 %.“
@@ -47,29 +47,36 @@ Poradie na obrazovke:
    - „Výrobca neuvádza, z akého zvieraťa je mäso.“
 5. **Štyri ukazovatele** – krátke pruhy s jedným slovom (Výborné/Dobré/Priemer/Slabé): Kvalita surovín, Mäso, Spracovanosť, Transparentnosť (bod 7). Klik = jedna veta vysvetlenia.
 6. **Zložky** – zbalený zoznam („Zobraziť všetkých 24 zložiek“), farebné štítky, klik = vysvetlenie.
-7. **Výzva** – oddelená čiarou, až na konci: „Chceš granule presne pre Bobíka? Vyskladaj si ich na granula.sk“ → `https://www.granula.sk/granule-na-mieru.html` s UTM parametrami. Hodnotenie samotné nikdy neobsahuje reklamu.
+7. **Odporúčanie Granula** – oddelený blok až na konci, pozri bod 9. Hodnotenie samotné nikdy neobsahuje reklamu.
 
 Sacharidy (odhad z analytických zložiek) zobrazuj len ako informáciu v detaile, **nehodnotia sa** – odborná zhoda na ideálnom množstve nie je.
 
-## 5. Ako sedí pre psa (bez čísla, len pravidlá s dôvodom)
+## 5. Ako sa hodí pre psa – skóre 0–100
 
-| Kontrola | Z čoho | Výsledok |
-|---|---|---|
-| Alergia | alergény psa × zložky (druh zvieraťa z kľúča zložky, ryža, zemiaky, vajcia, ryby, pšenica, kukurica, sója; aj tuky a pečeň daného zvieraťa) | obsahuje → ❌ „Obsahuje kuracie (kurací tuk)“ |
-| Životná fáza | fáza psa (engine.js) × `life_stage` / názov produktu (puppy, junior, adult, senior) | nesúlad → ⚠️ |
-| Veľkosť | veľkosť plemena × názov (mini/small/medium/maxi/large/giant) | nesúlad → ⚠️ |
-| Pankreas | tuk > 14 % | ⚠️ „Má 20 % tuku. Pri problémoch s pankreasom sa poraď s veterinárom.“ |
-| Nadváha | postava „kilo navyše“ alebo zameranie „váha“ a tuk ≥ 16 % | ⚠️ |
-| Aktivita | pracovný/športový pes a bielkoviny < 24 % alebo tuk < 14 % | ⚠️ |
-| Kĺby | veľké/obrie plemeno, senior alebo zameranie „kĺby“ a krmivo má glukozamín/chondroitín | ✅ plus |
-| Citlivé trávenie | zameranie „citlivé trávenie“ a ≥ 3 druhy zvierat alebo pšenica/kukurica/sója v top 5 | ⚠️ |
+Rovnaké pravidlá pre každé krmivo – aj pre odporúčanú receptúru Granula. Začína sa na 100, odpočítava sa:
 
-Výsledok: žiadna výhrada = ✅, aspoň jedna ⚠️ = „Sedí s výhradami“, aspoň jedno ❌ = „Nesedí“. Pri zdravotných témach vždy veta „Nie je to veterinárna rada.“
+| Kontrola | Kedy | Odpočet | Dôvod (text pre používateľa) |
+|---|---|---|---|
+| Alergia | krmivo obsahuje alergén psa (druh zvieraťa z kľúča zložky vrátane tuku a pečene; ryža, zemiaky, vajcia, ryby, pšenica, kukurica, sója) | **strop 20** | „Obsahuje kuracie (kurací tuk) – Bobík naň nemusí reagovať dobre.“ |
+| Šteňa na krmive pre dospelých | fáza psa šteňa/štartér a krmivo je pre dospelých/seniorov | −30 | „Krmivo nie je určené pre šteňatá v raste.“ |
+| Dospelý na krmive pre šteňatá | dospelý/senior a krmivo puppy/junior | −15 | |
+| Veľkosť | názov výslovne pre inú veľkosť (mini/small vs. large/maxi/giant) | −10 | |
+| Pankreas | tuk > 14 % / > 18 % | −30 / −40 | „Má 20 % tuku. Pri problémoch s pankreasom sa poraď s veterinárom.“ |
+| Nadváha | postava „kilo navyše“ alebo zameranie „váha“ a tuk ≥ 16 % | −20 | |
+| Šport, práca | bielkoviny < 24 % / tuk < 14 % | −15 / −10 | |
+| Málo pohybu, senior | tuk ≥ 18 % | −10 | |
+| Citlivé trávenie, „nesedí mu každé mäso“ | ≥ 3 druhy zvierat / pšenica, kukurica alebo sója v top 5 | −15 / −10 | |
+| Kĺby | zameranie „kĺby“, veľké/obrie plemeno alebo senior a krmivo nemá glukozamín ani chondroitín | −5 | |
+
+- Fáza a veľkosť psa: z engine.js (`derive`). Fáza a veľkosť krmiva: `life_stage`, inak z názvu (puppy, junior, šteňa, štěně, adult, senior, mini, small, medium, maxi, large, giant).
+- Ak chýbajú analytické zložky, kontroly tuku a bielkovín sa neodpočítajú, ale zobrazí sa „Obsah tuku výrobca neuvádza – nevieme posúdiť.“
+- Pásma: **85–100 Hodí sa výborne · 65–84 Hodí sa s výhradami · 40–64 Skôr sa nehodí · 0–39 Nehodí sa.**
+- Zobraz max. 3 dôvody (najväčšie odpočty). Pri zdravotných témach: „Nie je to veterinárna rada.“
 
 ## 6. Dávka
 
-- Energia krmiva (kcal/100 g) – ak ju výrobca uvádza, použi ju. Inak odhad (modifikované Atwaterove faktory, NRC 2006): `3,5 × bielkoviny + 8,5 × tuk + 3,5 × NBE`, NBE = 100 − bielkoviny − tuk − popol − vláknina − vlhkosť (vlhkosť chýba → 10 %).
-- Potreba psa – engine.js (RER × násobok).
+- Energia krmiva: ak ju výrobca uvádza, použi ju. Inak rovnaký výpočet ako konfigurátor – `metabolizable()` z engine.js (NRC 2006: hrubá energia → stráviteľnosť podľa vlákniny → metabolizovateľná energia); chýbajúca vlhkosť = 10 %, popol = 7 %.
+- Potreba psa – `energy()` z engine.js (RER × násobok).
 - Text: „cca X g denne (odhad). Začni touto dávkou a podľa váhy dolaď o ±10 %.“
 
 ## 7. Metodika 2.0 – SCHVÁLENÁ (26. 11. 2026)
@@ -102,3 +109,16 @@ Treba dorobiť v aplikácii:
 4. Neznáma zložka sa vo výsledku zobrazí šedou s vetou „Túto zložku zatiaľ nepoznáme – doplníme ju.“ (už je).
 
 Doplnenie robí Claude (plánovacia relácia): pravidlá v `reference/ingredients_rules.py` → `scripts/gen_rules_data.py` → nový dátový súbor so zložkami, aliasmi a prepočítaným skóre.
+
+## 9. Odporúčanie Granula na mieru
+
+Blok na konci výsledku, vizuálne oddelený, s nadpisom **„Granule na mieru pre Bobíka“** a malým textom:
+„Analyzér prevádzkuje Granula. Naše receptúry hodnotíme rovnakou verejnou metodikou ako všetky ostatné.“
+
+- Receptúru vyberá `compute(answers)` z engine.js – presne ako konfigurátor na granula.sk (pravidlá R1–R10, alergie, intolerancie, pankreas…). Analyzér nič nevyberá inak.
+- Zobraz: názov a fotku receptúry, **skóre zloženia** a **ako sa hodí pre Bobíka** (bod 5, rovnaké pravidlá), **dennú dávku v gramoch** a cenu na deň (z `bags` v engine.js), 1–2 dôvody výberu (`rule.why`).
+- **Porovnanie vedľa seba** (iba objektívne údaje): skóre zloženia, hodí sa pre Bobíka, mäso v granulách (%), dávka g/deň. Pri krmive používateľa sa cena nezobrazuje (nemáme ju).
+- Slová „lepšie“, „vhodnejšie“ použi iba vtedy, keď je receptúra Granula vyššie **v oboch** skóre. Inak len „Granule vyskladané podľa Bobíkových potrieb“.
+- Ak engine nenájde vhodnú receptúru (napr. alergia na všetky druhy mäsa), blok ukáže: „Pre Bobíka teraz nemáme vhodnú receptúru.“ – nič iné neponúkaj.
+- Tlačidlo: „Objednať granule pre Bobíka →“ na `https://www.granula.sk/granule-na-mieru.html` s predvyplnenými odpoveďami (ak to konfigurátor podporuje, inak len UTM) – `utm_source=analyzer&utm_medium=web&utm_campaign=vysledok`.
+- V e-maile s výsledkom rovnaký blok, oddelený od hodnotenia.

@@ -1,6 +1,6 @@
 # Metodika hodnotenia zloženia granúl – verzia 2.0
 
-Platí od 26. 11. 2026. Analyzér hodnotí **iba to, čo je napísané v zložení na obale** – nie značku, cenu ani tvrdenia výrobcu na webe.
+Platí od 26. 11. 2026. Analyzér prevádzkuje Granula (Spark Link, s. r. o.). Hodnotí **iba to, čo je napísané v zložení na obale** – nie značku, cenu ani tvrdenia výrobcu na webe.
 Rovnaké pravidlá platia pre všetky krmivá vrátane Granuly.
 
 ## 1. Hodnotenie jednej zložky (0–100)
@@ -52,12 +52,17 @@ Kompletný zoznam typov zložiek je v tabuľke `ingredients` (a v `supabase/data
 | 50–69 | Slabšia kvalita zloženia |
 | 0–49 | Nekvalitné zloženie |
 
-## 3. Porovnanie s trhom
+## 3. Ako sa krmivo hodí pre konkrétneho psa (0–100)
+
+Samostatné skóre podľa odpovedí o psovi. Začína sa na 100 a odpočítava sa za nesúlad: alergén psa v zložení (strop 20), krmivo pre inú životnú fázu (−15 až −30) alebo veľkosť (−10), vysoký tuk pri pankrease (−30/−40) alebo nadváhe (−20), málo bielkovín či tuku pre športového psa (−10/−15), veľa tuku pri malom pohybe (−10), veľa druhov mäsa alebo pšenica/kukurica/sója pri citlivom trávení (−10/−15), chýbajúca kĺbová výživa pri veľkých plemenách a senioroch (−5).
+85–100 hodí sa výborne, 65–84 s výhradami, 40–64 skôr nie, 0–39 nehodí sa. Rovnaké pravidlá platia aj pre receptúry Granula. Nie je to veterinárna rada.
+
+## 4. Porovnanie s trhom
 
 Výsledok sa porovná so skóre 1 784 granúl na slovenskom trhu (zber 2026-11): „lepšie ako X % granúl“.
 Žiadna značka sa pri tom nezobrazuje. Pri krmivách zo zoznamu uvádzame dátum a zdroj zloženia.
 
-## 4. Zmeny metodiky
+## 5. Zmeny metodiky
 
 Každá zmena = nová verzia v tabuľke `methodology_versions` s popisom, čo sa zmenilo.
 Každá analýza ukladá, podľa ktorej verzie bola vypočítaná.
