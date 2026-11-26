@@ -150,13 +150,20 @@ na granula.sk, ktorý prevádzkuje ten istý prevádzkovateľ (Spark Link, s. r.
 Voliteľne opačným smerom: konfigurátor na granula.sk môže vo výsledku ponúknuť „Porovnaj so svojimi súčasnými granulami“ →
 `analyzer/?kviz=<uuid>`; analyzér si odpovede načíta cez `GET /api/quiz/<uuid>` a otázky o psovi preskočí.
 
-### 9.1 Kedy odporúčanie neponúkať ako zmenu
+### 9.1 Kedy odporúčať (rozhodnutie majiteľky, 26. 11. 2026)
 
-Porovnaj krmivo používateľa (A) s receptúrou, ktorú vybral engine (G):
-- **A je tá istá receptúra ako G** → žiadna tabuľka. Text: „Toto sú presne granule, ktoré by sme Erikovi vybrali aj my.“ + tlačidlo „Objednať granule pre psa Erik →“ (kviz s `recipe` = G).
-- **A je iná receptúra Granula a hodí sa rovnako alebo lepšie ako G** (skóre „hodí sa“ A ≥ G) → žiadna tabuľka, žiadne odporúčanie inej receptúry. Text: „Tieto granule sa Erikovi hodia.“ + tlačidlo na objednanie **A** (kviz s `recipe` = A, `recipeFor` = G).
-- **A je iná receptúra Granula a G sa hodí lepšie** → tabuľka A vs. G + jedna veta prečo (`rule.why`), napr. „Pre citlivé trávenie odporúčame jeden druh mäsa.“ Dve tlačidlá: „Objednať {G}“ (hlavné) a „Ostať pri {A}“.
-- **A je iná značka a G nie je lepšie v skóre zloženia ani v „hodí sa“** → bez tabuľky, len krátky blok „Chceš vyskúšať granule vyskladané na mieru pre Erika?“ + tlačidlo.
-- Inak (iná značka, G lepšie aspoň v jednom) → tabuľka ako v bode 9; slovo „lepšie“ iba keď je G lepšie v oboch.
+Odporúča sa **iba receptúra Granula** a **iba taká, ktorá sa psovi hodí na 100/100** (bod 5).
 
-Kontrolný prípad: pes so zameraním „citlivé trávenie“ alebo „nesedí mu každé mäso“, analyzované Granula Morka, hus & kačica → „hodí sa“ 85 (4 druhy mäsa), engine vyberie Jahňa (monoproteín, „hodí sa“ vyššie) → tabuľka + dôvod. Rovnaký pes bez citlivého trávenia → Morka sa hodí a odporúčanie inej receptúry sa neukáže.
+1. **Krmivo používateľa sa psovi hodí na 100/100** → **žiadne odporúčanie** (ani Granula). Text: „Tieto granule sa Erikovi hodia na 100 %.“
+   Ak je to receptúra Granula, pridaj tlačidlo „Objednať granule pre psa Erik →“ (kviz s `recipe` = táto receptúra).
+2. **Hodí sa menej ako na 100** → vyber receptúru Granula, ktorá sa hodí na 100/100, v tomto poradí:
+   receptúra z `compute()` (engine.js) → druhá možnosť (`second`) → ostatné vhodné receptúry v poradí katalógu.
+   Prvá, ktorá má „hodí sa“ = 100, sa odporučí. Dávka, cena a odkaz (kviz s `recipe` = vybraná, `recipeFor` = z engine) sú pre ňu.
+3. **Žiadna receptúra Granula nemá 100/100** → blok s odporúčaním sa nezobrazí vôbec.
+4. Pri odporúčaní tabuľka krmivo používateľa vs. odporúčaná receptúra + jedna veta prečo (dôvody odpočtov pri krmive používateľa,
+   ktoré odporúčaná receptúra nemá). Slovo „lepšie“ iba keď je receptúra Granula vyššie aj v skóre zloženia.
+
+Kontrolné prípady:
+- Pes s citlivým trávením, analyzovaná Granula Morka, hus & kačica → hodí sa 85 → odporučí sa Jahňa (ak má 100) s dôvodom „jeden druh mäsa“.
+- Ten istý pes, analyzované Jahňa (100) → žiadne odporúčanie, len „hodia sa na 100 %“ a tlačidlo objednať.
+- Pes bez zvláštnych potrieb, analyzovaná iná značka s „hodí sa“ 100 → žiadne odporúčanie.
