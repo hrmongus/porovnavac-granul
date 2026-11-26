@@ -194,6 +194,16 @@ export const RULES: RulesData = {
    "sensitivity": "strukoviny"
   },
   {
+   "rx": "(ryz|rice|zemiak|brambor|potato|okreh|lemna|duckweed|slnecnic|sunflower|fava|lupin|konop|hemp)\\w*\\s+(protein|bielkovin)|(protein|bielkovin)\\w*\\s+(z|zo)\\s+(ryz|zemiak|okreh|lemn|slnecnic|konop)",
+   "key": "rastlinne-proteiny",
+   "name": "Rastlinný proteín (ryžový, zemiakový, z okrehku…)",
+   "category": "ine",
+   "classification": "spracovana",
+   "score": 50,
+   "explanation": "Bielkovina oddelená z rastliny. Lacne zvyšuje obsah bielkovín na etikete, takže krmivo vyzerá „mäsitejšie“, než je.",
+   "sensitivity": null
+  },
+  {
    "rx": "(ryz|ovsen|psenic|kukuric).*otrub",
    "key": "otruby",
    "name": "Otruby",
@@ -254,12 +264,22 @@ export const RULES: RulesData = {
    "sensitivity": "obilniny"
   },
   {
+   "rx": "(hrach|hras|pea|sosovic|cocka|lentil|cicer|cizrn|chickpea|fazul|fazol|bean|lupin)\\w*\\s*(muk|mouk|flour|meal)",
+   "key": "strukoviny-muka",
+   "name": "Múka zo strukovín (hrachová, šošovicová…)",
+   "category": "strukovina",
+   "classification": "spracovana",
+   "score": 55,
+   "explanation": "Pomletá strukovina. Zvyšuje obsah rastlinných bielkovín a škrobu; v krmivách bez obilnín často nahrádza časť mäsa.",
+   "sensitivity": "strukoviny"
+  },
+  {
    "rx": "hrach.*(protein|bielkov|skrob|vlakn|muck|fiber|starch)|hras.*(protein|bielkov|skrob|vlakn|muck)|pea (protein|starch|fib)",
    "key": "hrachove-frakcie",
    "name": "Hrachová bielkovina / škrob / vláknina",
    "category": "strukovina",
    "classification": "spracovana",
-   "score": 55,
+   "score": 50,
    "explanation": "Časť hrachu oddelená pri spracovaní. Hrachová bielkovina lacne zvyšuje obsah bielkovín na etikete, škrob slúži ako pojivo. Ak je ich v zložení viac, môžu „rozdeliť“ hrach, aby nebol na prvom mieste.",
    "sensitivity": "strukoviny"
   },
@@ -269,7 +289,7 @@ export const RULES: RulesData = {
    "name": "Hrach / hrášok",
    "category": "strukovina",
    "classification": "pomenovana",
-   "score": 70,
+   "score": 60,
    "explanation": "Strukovina – zdroj energie, vlákniny a rastlinnej bielkoviny. Bežná náhrada obilia v krmivách „bez obilnín“.",
    "sensitivity": "strukoviny"
   },
@@ -279,7 +299,7 @@ export const RULES: RulesData = {
    "name": "Šošovica / cícer / fazuľa",
    "category": "strukovina",
    "classification": "pomenovana",
-   "score": 72,
+   "score": 60,
    "explanation": "Strukovina – zdroj energie, vlákniny a rastlinnej bielkoviny.",
    "sensitivity": "strukoviny"
   },
@@ -529,7 +549,7 @@ export const RULES: RulesData = {
    "name": "Rastlinné oleje a semená (slnečnica, repka, konope…)",
    "category": "tuk_olej",
    "classification": "pomenovana",
-   "score": 75,
+   "score": 70,
    "explanation": "Konkrétne pomenovaný rastlinný olej alebo semeno – zdroj energie a mastných kyselín.",
    "sensitivity": null
   },
@@ -586,7 +606,7 @@ export const RULES: RulesData = {
    "sensitivity": null
   },
   {
-   "rx": "rastlinn[eaá] bielkovin|bielkovinov[yý] (izolat|extrakt)|rastlinny protein|rastlinne proteiny",
+   "rx": "rastlinn\\w* bielkovin|extrakt\\w* rastlinn|bielkovinov[yý] (izolat|extrakt)|rastlinny protein|rastlinne proteiny",
    "key": "rastlinna-bielkovina-nespec",
    "name": "Rastlinná bielkovina (bez uvedenia zdroja)",
    "category": "ine",
@@ -838,8 +858,8 @@ export const RULES: RulesData = {
   "susene": 100,
   "maso": 100,
   "vnutor": 97,
-  "hydrolyz": 85,
-  "bielkov": 90,
+  "hydrolyz": 55,
+  "bielkov": 40,
   "muck": 40,
   "tuk": 85,
   "vyvar": 75

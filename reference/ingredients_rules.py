@@ -93,6 +93,8 @@ D = [
   'Obilnina, lacný zdroj energie a pojivo. Obsahuje lepok – niektoré psy na ňu reagujú citlivo (trávenie, koža).', 'obilniny'),
  (r'soj|soya|soy\b|soybean', 'soja', 'Sója / sójová múka', 'strukovina', 'pomenovana', 40,
   'Lacný rastlinný zdroj bielkovín. Zvyšuje číslo bielkovín na etikete, je častým alergénom a môže spôsobovať plynatosť.', 'strukoviny'),
+ (r'(ryz|rice|zemiak|brambor|potato|okreh|lemna|duckweed|slnecnic|sunflower|fava|lupin|konop|hemp)\w*\s+(protein|bielkovin)|(protein|bielkovin)\w*\s+(z|zo)\s+(ryz|zemiak|okreh|lemn|slnecnic|konop)', 'rastlinne-proteiny', 'Rastlinný proteín (ryžový, zemiakový, z okrehku…)', 'ine', 'spracovana', 50,
+  'Bielkovina oddelená z rastliny. Lacne zvyšuje obsah bielkovín na etikete, takže krmivo vyzerá „mäsitejšie“, než je.', None),
  (r'(ryz|ovsen|psenic|kukuric).*otrub', 'otruby', 'Otruby', 'vlaknina', 'pomenovana', 65,
   'Obalové časti zŕn – zdroj vlákniny. Výživovo málo hodnotné.', 'obilniny'),
  (r'hneda ryz|celozrnn[aá] ryz|natural rice|brown rice|ryza natural', 'hneda-ryza', 'Hnedá / celozrnná ryža', 'obilnina', 'pomenovana', 85,
@@ -106,11 +108,13 @@ D = [
  (r'quino|spald|spelt|proso|millet|jahl|cirok|sorghum|pohan|buckwheat|quinoa|kinoa|amarant|tritikal|raz\b|rasz|zito|rye', 'ine-obilniny', 'Proso / cirok / špalda / pohánka / quinoa', 'obilnina', 'pomenovana', 75,
   'Menej bežná obilnina alebo pseudoobilnina – zdroj energie a vlákniny.', 'obilniny'),
  # --- strukoviny ---
- (r'hrach.*(protein|bielkov|skrob|vlakn|muck|fiber|starch)|hras.*(protein|bielkov|skrob|vlakn|muck)|pea (protein|starch|fib)', 'hrachove-frakcie', 'Hrachová bielkovina / škrob / vláknina', 'strukovina', 'spracovana', 55,
+ (r'(hrach|hras|pea|sosovic|cocka|lentil|cicer|cizrn|chickpea|fazul|fazol|bean|lupin)\w*\s*(muk|mouk|flour|meal)', 'strukoviny-muka', 'Múka zo strukovín (hrachová, šošovicová…)', 'strukovina', 'spracovana', 55,
+  'Pomletá strukovina. Zvyšuje obsah rastlinných bielkovín a škrobu; v krmivách bez obilnín často nahrádza časť mäsa.', 'strukoviny'),
+ (r'hrach.*(protein|bielkov|skrob|vlakn|muck|fiber|starch)|hras.*(protein|bielkov|skrob|vlakn|muck)|pea (protein|starch|fib)', 'hrachove-frakcie', 'Hrachová bielkovina / škrob / vláknina', 'strukovina', 'spracovana', 50,
   'Časť hrachu oddelená pri spracovaní. Hrachová bielkovina lacne zvyšuje obsah bielkovín na etikete, škrob slúži ako pojivo. Ak je ich v zložení viac, môžu „rozdeliť“ hrach, aby nebol na prvom mieste.', 'strukoviny'),
- (r'hrach|hras|pea\b|peas\b', 'hrach', 'Hrach / hrášok', 'strukovina', 'pomenovana', 70,
+ (r'hrach|hras|pea\b|peas\b', 'hrach', 'Hrach / hrášok', 'strukovina', 'pomenovana', 60,
   'Strukovina – zdroj energie, vlákniny a rastlinnej bielkoviny. Bežná náhrada obilia v krmivách „bez obilnín“.', 'strukoviny'),
- (r'sosovic|cocka|lentil|cicer|cizrn|chickpea|fazul|fazol|bean|bob\b|lupin|vlcí bob', 'ine-strukoviny', 'Šošovica / cícer / fazuľa', 'strukovina', 'pomenovana', 72,
+ (r'sosovic|cocka|lentil|cicer|cizrn|chickpea|fazul|fazol|bean|bob\b|lupin|vlcí bob', 'ine-strukoviny', 'Šošovica / cícer / fazuľa', 'strukovina', 'pomenovana', 60,
   'Strukovina – zdroj energie, vlákniny a rastlinnej bielkoviny.', 'strukoviny'),
  # --- zemiaky a škroby ---
  (r'sladk[eé] zemiak|batat|sweet potato|kukurydz', 'batat', 'Batáty (sladké zemiaky)', 'zelenina_ovocie', 'pomenovana', 85,
@@ -165,7 +169,7 @@ D = [
   'Lacný rastlinný tuk s nízkym obsahom esenciálnych mastných kyselín. Pre psa výživovo málo prínosný.', None),
  (r'sojov[yý] olej|soy(bean)? oil', 'sojovy-olej', 'Sójový olej', 'tuk_olej', 'pomenovana', 60,
   'Rastlinný olej, zdroj omega-6 mastných kyselín. Lacnejšia alternatíva k rybím olejom.', None),
- (r'slnecnic|slunecnic|sunflower|repkov|repkovy|rapeseed|canola|kukuricn[yý] olej|svetlicov|safflower|konopn|hemp|kokos|coconut|olivov|olive|pupalk|borak|ostropest[rř]|chia|tekvicov[eé] semi|semienk', 'rastlinne-oleje-semena', 'Rastlinné oleje a semená (slnečnica, repka, konope…)', 'tuk_olej', 'pomenovana', 75,
+ (r'slnecnic|slunecnic|sunflower|repkov|repkovy|rapeseed|canola|kukuricn[yý] olej|svetlicov|safflower|konopn|hemp|kokos|coconut|olivov|olive|pupalk|borak|ostropest[rř]|chia|tekvicov[eé] semi|semienk', 'rastlinne-oleje-semena', 'Rastlinné oleje a semená (slnečnica, repka, konope…)', 'tuk_olej', 'pomenovana', 70,
   'Konkrétne pomenovaný rastlinný olej alebo semeno – zdroj energie a mastných kyselín.', None),
  (r'rastlinn[yý] olej|rastlinne oleje|rastlinny tuk|rastlinne tuky|vegetable oil', 'rastlinny-olej-nespec', 'Rastlinný olej (bez uvedenia zdroja)', 'tuk_olej', 'nespecifikovana', 40,
   'Rastlinný olej bez uvedenia, z akej rastliny je. Nevieme posúdiť jeho kvalitu ani pomer mastných kyselín.', None),
@@ -182,7 +186,7 @@ JUNK = re.compile(r'^(\d+([.,]\d+)? ?kg\b|\)|zlozky$|prirodne prisady|zlozenie|s
 EXTRA = [
  (r'hydrolyz.*pecen|^pecen|^pecene|hydrolyzovane pecene', 'pecen-nespecifikovana', 'Pečeň (bez uvedenia zvieraťa)', 'zivocisny_vedlajsi_produkt', 'spracovana', 65,
   'Pečeň bez uvedenia zvieraťa – výživovo hodnotná a chutná, ale nevieme, z akého zvieraťa pochádza.', None),
- (r'rastlinn[eaá] bielkovin|bielkovinov[yý] (izolat|extrakt)|rastlinny protein|rastlinne proteiny', 'rastlinna-bielkovina-nespec', 'Rastlinná bielkovina (bez uvedenia zdroja)', 'ine', 'nespecifikovana', 45,
+ (r'rastlinn\w* bielkovin|extrakt\w* rastlinn|bielkovinov[yý] (izolat|extrakt)|rastlinny protein|rastlinne proteiny', 'rastlinna-bielkovina-nespec', 'Rastlinná bielkovina (bez uvedenia zdroja)', 'ine', 'nespecifikovana', 45,
   'Bielkovina z rastlín bez uvedenia, z akých. Lacne zvyšuje obsah bielkovín na etikete; pre psa je menej hodnotná ako živočíšna.', None),
  (r'autolyzat', 'autolyzat', 'Autolyzát (bez uvedenia zdroja)', 'prisada', 'nespecifikovana', 45,
   'Produkt samovoľného rozkladu bielkovín (napr. kvasníc alebo mäsa), slúži na zlepšenie chuti. Zdroj nie je uvedený.', None),
@@ -212,9 +216,9 @@ def explain_meat(animal, form):
     base = {
         'cerstve': f'Čerstvé {animal} mäso – konkrétne pomenovaný zdroj živočíšnych bielkovín. Pozor: čerstvé mäso obsahuje asi 70 % vody, takže po vysušení ho v granule zostane podstatne menej, než ukazuje percento na obale.',
         'susene': f'Sušené (dehydrované) {animal} mäso – konkrétne pomenovaný a koncentrovaný zdroj živočíšnych bielkovín. Percento na obale tu zodpovedá skutočnému podielu v granule lepšie ako pri čerstvom mäse.',
-        'muck': f'Múčka z {animal} mäsa – mäso (často aj s kosťami) usušené a zomleté. Pomenovaný a koncentrovaný zdroj bielkovín, no kvalita závisí od toho, aké časti zvieraťa sa použili.',
-        'hydrolyz': f'Hydrolyzovaná {animal} bielkovina – bielkovina rozložená na menšie časti, ľahko stráviteľná a menej alergizujúca. Zdroj je pomenovaný.',
-        'bielkov': f'{animal.capitalize()} bielkovina / proteín – koncentrovaný a pomenovaný živočíšny zdroj bielkovín (sušené a odtučnené mäso).',
+        'muck': f'Múčka z {animal} mäsa – pomleté vedľajšie produkty z bitúnkov (môžu obsahovať kosti, kožu, chrupavky). Z obalu sa nedá zistiť, z ktorých častí zvieraťa je; bielkoviny sú horšie stráviteľné ako z mäsa.',
+        'hydrolyz': f'Hydrolyzovaná {animal} bielkovina – bielkovina z vedľajších živočíšnych produktov rozložená na menšie časti. Používa sa najmä na chuť; z obalu sa nedá zistiť, z ktorých častí zvieraťa je.',
+        'bielkov': f'{animal.capitalize()} bielkovina / proteín – spracovaná živočíšna bielkovina (zahriata, vysušená a pomletá). Podľa práva EÚ patrí do rovnakej kategórie ako múčka a z obalu sa nedá zistiť, z ktorých častí zvieraťa je.',
         'vnutor': f'{animal.capitalize()} vnútornosti (pečeň, srdce, žalúdky…) – pomenované a výživovo veľmi hodnotné, prirodzene bohaté na vitamíny a minerály.',
         'tuk': f'{animal.capitalize()} tuk / olej – pomenovaný zdroj energie a mastných kyselín.',
         'maso': f'{animal.capitalize()} mäso – konkrétne pomenovaný zdroj živočíšnych bielkovín.',
@@ -223,7 +227,7 @@ def explain_meat(animal, form):
     return base[form]
 
 MUSSEL = r'musl|slavk|perna|zelenoust|green.?lipped'
-MEAT_SCORES = {'cerstve': 100, 'susene': 100, 'maso': 100, 'vnutor': 97, 'hydrolyz': 85, 'bielkov': 90, 'muck': 40, 'tuk': 85, 'vyvar': 75}
+MEAT_SCORES = {'cerstve': 100, 'susene': 100, 'maso': 100, 'vnutor': 97, 'hydrolyz': 55, 'bielkov': 40, 'muck': 40, 'tuk': 85, 'vyvar': 75}
 FAT_FISH = {'losos': 92, 'sleď': 90, 'treska': 88, 'sardinky': 90, 'makrela': 90, 'pstruh': 90, 'morské plody': 90}
 
 def form_of(t):
@@ -272,11 +276,11 @@ def classify(raw):
             return dict(key=key, name=name, category=cat, classification=cls, score=sc, color=color(sc), explanation=expl, sensitivity=sens)
         # čiastočne pomenované: hydina / ryby všeobecne
         if re.search(POULTRY_GENERIC, t):
-            sc = {'tuk': 78, 'muck': 30, 'hydrolyz': 65, 'bielkov': 70}.get(f, 80)
+            sc = {'tuk': 78, 'muck': 30, 'hydrolyz': 40, 'bielkov': 30}.get(f, 80)
             return dict(key=f'hydina-{f}', name=f'Hydina ({f})', category='tuk_olej' if f == 'tuk' else 'maso', classification='spracovana', score=sc, color=color(sc),
                         explanation='Hydina bez uvedenia druhu (kura, morka, kačica…). Je to živočíšny zdroj, ale presné zviera nevieme – pri alergii na kuracie to nie je možné vylúčiť.', sensitivity='kuracie')
         if is_fishy:
-            sc = {'tuk': 78, 'muck': 30, 'hydrolyz': 60, 'bielkov': 68}.get(f, 78)
+            sc = {'tuk': 78, 'muck': 30, 'hydrolyz': 40, 'bielkov': 30}.get(f, 78)
             return dict(key=f'ryba-{f}', name=f'Ryba bez uvedenia druhu ({f})', category='tuk_olej' if f == 'tuk' else 'maso', classification='spracovana', score=sc, color=color(sc),
                         explanation='Ryba bez uvedenia druhu. Je to živočíšny zdroj (pri oleji aj omega-3 mastných kyselín), ale nevieme, aké ryby to sú.', sensitivity=None)
         return dict(key='maso-nespecifikovane', name='Mäso bez uvedenia zvieraťa', category='zivocisny_vedlajsi_produkt', classification='nespecifikovana', score=20, color=color(20),

@@ -12,9 +12,11 @@ Projekt: `https://mqgukyfttafavlnlaoyj.supabase.co`
 4. Spusti postupne `supabase/data/granule_2026-11-19_cast1.sql`, `_cast2.sql`, `_cast3.sql`
    (granule zo slovenského trhu; dajú sa spúšťať aj opakovane)
 5. Spusti `supabase/migrations/20261126010000_ingredient_scores.sql`
-6. Spusti `supabase/data/zlozky_v1_a_skore_produktov.sql` (225 zložiek, 3 511 zápisov, skóre produktov)
-7. `supabase/seed.sql` s ukážkovými dátami už netreba
-8. Skopíruj `.env.example` do `.env`
+6. Spusti `supabase/data/granula_produkty_2026-11-26.sql` (receptúry Granula)
+7. Spusti `supabase/migrations/20261126040000_methodology_2_0.sql` a potom `supabase/data/zlozky_a_skore_v2.sql`
+   (227 zložiek, 3 511 zápisov, skóre a ukazovatele 1 784 produktov podľa metodiky 2.0)
+8. `supabase/seed.sql` s ukážkovými dátami už netreba
+9. Skopíruj `.env.example` do `.env`
 
 ### Nasadenie do produkcie
 Jediná vetva je `main` a každý push do nej automaticky aplikuje nové migrácie
@@ -61,7 +63,7 @@ Skóre (`score_*`) zatiaľ nie je vypočítané.
 
 ## Analyzér
 
-- `docs/METODIKA.md` – verejná metodika hodnotenia (verzia 1.0, návrh na schválenie)
+- `docs/METODIKA.md` – verejná metodika hodnotenia (verzia 2.0, schválená 26. 11. 2026)
 - `docs/ANALYZER_SPEC.md` – zadanie aplikácie
 - `reference/` – referenčná implementácia hodnotenia v Pythone (`scoring.py`, `ingredients_rules.py`)
 - `supabase/data/zlozky_hodnotenie_v1.csv` – všetky typy zložiek so skóre a vysvetlením (na kontrolu)

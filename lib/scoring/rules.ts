@@ -68,9 +68,9 @@ function explainMeat(animal: string, form: Form): string {
   const base: Record<Form, string> = {
     cerstve: `Čerstvé ${animal} mäso – konkrétne pomenovaný zdroj živočíšnych bielkovín. Pozor: čerstvé mäso obsahuje asi 70 % vody, takže po vysušení ho v granule zostane podstatne menej, než ukazuje percento na obale.`,
     susene: `Sušené (dehydrované) ${animal} mäso – konkrétne pomenovaný a koncentrovaný zdroj živočíšnych bielkovín. Percento na obale tu zodpovedá skutočnému podielu v granule lepšie ako pri čerstvom mäse.`,
-    muck: `Múčka z ${animal} mäsa – mäso (často aj s kosťami) usušené a zomleté. Pomenovaný a koncentrovaný zdroj bielkovín, no kvalita závisí od toho, aké časti zvieraťa sa použili.`,
-    hydrolyz: `Hydrolyzovaná ${animal} bielkovina – bielkovina rozložená na menšie časti, ľahko stráviteľná a menej alergizujúca. Zdroj je pomenovaný.`,
-    bielkov: `${cap} bielkovina / proteín – koncentrovaný a pomenovaný živočíšny zdroj bielkovín (sušené a odtučnené mäso).`,
+    muck: `Múčka z ${animal} mäsa – pomleté vedľajšie produkty z bitúnkov (môžu obsahovať kosti, kožu, chrupavky). Z obalu sa nedá zistiť, z ktorých častí zvieraťa je; bielkoviny sú horšie stráviteľné ako z mäsa.`,
+    hydrolyz: `Hydrolyzovaná ${animal} bielkovina – bielkovina z vedľajších živočíšnych produktov rozložená na menšie časti. Používa sa najmä na chuť; z obalu sa nedá zistiť, z ktorých častí zvieraťa je.`,
+    bielkov: `${cap} bielkovina / proteín – spracovaná živočíšna bielkovina (zahriata, vysušená a pomletá). Podľa práva EÚ patrí do rovnakej kategórie ako múčka a z obalu sa nedá zistiť, z ktorých častí zvieraťa je.`,
     vnutor: `${cap} vnútornosti (pečeň, srdce, žalúdky…) – pomenované a výživovo veľmi hodnotné, prirodzene bohaté na vitamíny a minerály.`,
     tuk: `${cap} tuk / olej – pomenovaný zdroj energie a mastných kyselín.`,
     maso: `${cap} mäso – konkrétne pomenovaný zdroj živočíšnych bielkovín.`,
@@ -148,7 +148,7 @@ export function classify(raw: string): Classified | null {
       };
     }
     if (POULTRY_GENERIC.test(t)) {
-      const sc = ({ tuk: 78, muck: 30, hydrolyz: 65, bielkov: 70 } as Record<string, number>)[f] ?? 80;
+      const sc = ({ tuk: 78, muck: 30, hydrolyz: 40, bielkov: 30 } as Record<string, number>)[f] ?? 80;
       return {
         key: `hydina-${f}`, name: `Hydina (${f})`, category: f === 'tuk' ? 'tuk_olej' : 'maso', classification: 'spracovana',
         score: sc, color: colorOf(sc), sensitivity: 'kuracie',
@@ -156,7 +156,7 @@ export function classify(raw: string): Classified | null {
       };
     }
     if (isFishy) {
-      const sc = ({ tuk: 78, muck: 30, hydrolyz: 60, bielkov: 68 } as Record<string, number>)[f] ?? 78;
+      const sc = ({ tuk: 78, muck: 30, hydrolyz: 40, bielkov: 30 } as Record<string, number>)[f] ?? 78;
       return {
         key: `ryba-${f}`, name: `Ryba bez uvedenia druhu (${f})`, category: f === 'tuk' ? 'tuk_olej' : 'maso', classification: 'spracovana',
         score: sc, color: colorOf(sc), sensitivity: null,

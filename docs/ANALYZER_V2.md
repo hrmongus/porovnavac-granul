@@ -72,17 +72,18 @@ Výsledok: žiadna výhrada = ✅, aspoň jedna ⚠️ = „Sedí s výhradami�
 - Potreba psa – engine.js (RER × násobok).
 - Text: „cca X g denne (odhad). Začni touto dávkou a podľa váhy dolaď o ±10 %.“
 
-## 7. Metodika 2.0 – NÁVRH (čaká na schválenie)
+## 7. Metodika 2.0 – SCHVÁLENÁ (26. 11. 2026)
 
-Referenčná implementácia: `reference/indicators.py` (`total_v2`). TS port musí dať rovnaké čísla pre všetky produkty.
+Popis: `docs/METODIKA.md`. Výpočet je hotový v `lib/scoring/analyze.ts` (`METHODOLOGY_VERSION = '2.0'`);
+`analyze()` vracia okrem `score` aj `parts` (kvalita surovín, odhad % mäsa, body za mäso, % spracovaných surovín,
+body za spracovanosť, transparentnosť) a `carbsEstimate(analytical)` dáva odhad sacharidov (nehodnotí sa).
+Referenčná implementácia `reference/scoring.py`; TS a Python sa zhodujú na všetkých 1 784 produktoch.
 
-| Ukazovateľ | Čo meria | Body |
-|---|---|---|
-| Kvalita surovín (55 %) | doterajšie hodnotenie zložiek podľa poradia | 0–100 |
-| Mäso (20 %) | odhad podielu mäsa v hotových granulách z deklarovaných % a formy (čerstvé × 0,25 sušiny, sušené × 0,9); počíta sa len pomenované mäso a vnútornosti, nie múčky, bielkoviny ani hydrolyzáty | 50 % a viac = 100; neuvedené % = 30 |
-| Spracovanosť (10 %) | váhový podiel vysoko spracovaných surovín (múčky, sušené/hydrolyzované bielkoviny, izoláty a frakcie, lepok, škroby, nešpecifikované kategórie, cukor) | 0 % = 100, 50 % a viac = 0 |
-| Transparentnosť (15 %) | podiel pomenovaných zložiek medzi prvými 10 (60 %) a uvedené % pri prvých 3 (40 %) | 0–100 |
+Ukazovatele zobraz vo výsledku (bod 4.5) slovami: 90+ Výborné, 70+ Dobré, 50+ Priemer, inak Slabé.
+Pri mäse zobraz odhad v % („Mäso tvorí odhadom 48 % granúl. Medián trhu: X %.“), pri neuvedenom „Výrobca neuvádza percentá mäsa“.
 
-Stropy ostávajú: červená zložka v top 5 → max. 49; umelé farbivo, syntetický konzervant, cukor → max. 69.
+V databáze: `products.score_total`, `score_quality`, `score_meat`, `score_processing`, `score_transparency`,
+`meat_percent_est`, `processed_percent`, `carbs_percent_est`, `methodology_version = '2.0'`
+(migrácia `20261126040000_methodology_2_0.sql`, dáta `supabase/data/zlozky_a_skore_v2.sql`).
 
-Výsledky na dátach (1 779 produktov): medián 62, 90+ má 71 produktov. Granula 91–96; Orijen, Acana, Alleva 95–97. Kontrolné hodnoty pre test: pozri výstup `python3 reference/indicators.py` (doplní sa po schválení).
+Rozloženie trhu: medián 49, 90+ má 67 produktov, pod 50 je 1 113 z 1 784. Granula 91–96.
