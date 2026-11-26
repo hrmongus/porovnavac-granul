@@ -7,6 +7,7 @@
 ## Prostredia
 - Jediné prostredie je **production** (Supabase projekt `mqgukyfttafavlnlaoyj`).
 - Push do `main` automaticky nasadí migrácie cez `.github/workflows/deploy-supabase.yml`.
+- Web beží na Netlify (projekt `analyzer-granul-test`); nasadenie: `scripts/deploy-netlify.sh`.
 
 ## Databáza (Supabase)
 - Zmeny schémy = **nový** súbor `supabase/migrations/<YYYYMMDDHHMMSS>_<popis>.sql`.
