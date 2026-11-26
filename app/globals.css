@@ -214,3 +214,20 @@ textarea { min-height: 180px; resize: vertical; }
 
 .cta { border-top: var(--line); margin-top: 40px; padding-top: 24px; }
 .cta p { font-weight: 700; font-size: 18px; margin: 0 0 12px; }
+
+/* Skóre „ako sa hodí“ a blok Granula (bod 5 a 9) */
+.score-num.small { font-size: 34px; min-width: 92px; padding: 10px 8px; }
+.fit-vyborne { border-left: 8px solid var(--zelena); }
+.fit-vyhrady { border-left: 8px solid var(--zlta); }
+.fit-skor-nie { border-left: 8px solid var(--oranzova); }
+.fit-nie { border-left: 8px solid var(--cervena); }
+.granula-block { border-top: var(--line); margin-top: 48px; padding-top: 8px; }
+.granula-block h2 { margin-top: 24px; }
+.granula-head { display: flex; gap: 16px; align-items: flex-start; }
+.granula-head img { width: 120px; height: 120px; object-fit: contain; border: var(--line); background: #fff; flex: none; }
+.granula-head p { margin: 0 0 6px; }
+@media (max-width: 420px) { .granula-head { flex-direction: column; } }
+.compare { width: 100%; border-collapse: collapse; font-size: 14px; border: var(--line); background: #fff; }
+.compare th, .compare td { padding: 8px; border-bottom: 1px solid #d6cfc6; text-align: left; vertical-align: top; }
+.compare thead th { border-bottom: var(--line); font-size: 12px; text-transform: uppercase; font-weight: 900; }
+.compare tbody th { font-weight: 700; }

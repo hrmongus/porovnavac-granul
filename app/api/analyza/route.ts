@@ -4,6 +4,7 @@ import { adminClient } from '@/lib/server/admin';
 import { jsonError, rateLimit, verifyTurnstile } from '@/lib/server/guard';
 import { parseDog } from '@/lib/dog/validate';
 import { doseFor, findings, fitForDog, indicators, type ProductInfo } from '@/lib/v2/report';
+import { granulaPick, type GranulaDbProduct } from '@/lib/v2/granula';
 import type { StoredResult } from '@/lib/result';
 
 const MAX_LEN = 5000;
@@ -58,6 +59,10 @@ export async function POST(req: Request) {
   if (r.items.length === 0) return jsonError('V texte sme nenašli žiadne zložky. Skontroluj, či ide o zloženie krmiva.');
 
   const dose = doseFor(dog, product);
+  const fit = fitForDog(r, dog, product);
+  const granula = granulaPick(dog, await granulaProducts(), ref.aliases, {
+    score: r.score, fitScore: fit.score, productName: product?.name ?? null, isGranula: product?.brand === 'Granula',
+  });
   let sourceDomain: string | null = null;
   try { sourceDomain = product?.source_url ? new URL(product.source_url).hostname.replace(/^www\./, '') : null; } catch { sourceDomain = null; }
   const result: StoredResult = {
@@ -65,7 +70,8 @@ export async function POST(req: Request) {
     percentile: r.score === null ? null : percentileBelow(r.score, ref.marketScores),
     market_count: ref.marketScores.length,
     product: product && { brand: product.brand, name: product.name, composition_date: product.composition_date, source: sourceDomain },
-    fit: fitForDog(r, dog, product),
+    fit,
+    granula,
     dose,
     findings: findings(r, ref.marketMeatMedian),
     indicators: indicators(r, ref.marketMeatMedian),
@@ -88,4 +94,15 @@ export async function POST(req: Request) {
   }
   // Údaje pre animáciu – zodpovedajú tomu, čo sa naozaj počítalo.
   return Response.json({ id: data.id, itemCount: r.items.length, marketCount: ref.marketScores.length, hasDose: dose !== null });
+}
+
+/** Receptúry Granula z databázy (hodnotia sa rovnako ako ostatné krmivá). */
+async function granulaProducts(): Promise<GranulaDbProduct[]> {
+  const { data } = await publicClient().from('products')
+    .select('name, composition_raw, composition_date, source_url, analytical_raw, energy_raw, life_stage, nutritional_additives_raw, brands!inner(name, is_granula)')
+    .eq('brands.is_granula', true);
+  return (data ?? []).map((p) => ({
+    brand: 'Granula', name: p.name, composition_raw: p.composition_raw, composition_date: p.composition_date, source_url: p.source_url,
+    analytical_raw: p.analytical_raw, energy_raw: p.energy_raw, life_stage: p.life_stage, additives_raw: p.nutritional_additives_raw,
+  }));
 }

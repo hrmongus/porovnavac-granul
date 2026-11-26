@@ -30,12 +30,12 @@ export async function POST(req: Request) {
   const sb = adminClient();
   const { data: analysis } = await sb.from('analyses').select('id, result, lead_id, dog').eq('id', analysisId).single();
   if (!analysis) return jsonError('Analýza neexistuje.', 404);
-  const dog = analysis.dog as { name?: string; breed?: string | null; years?: number; months?: number } | null;
-  const dogName = dog?.name ?? null;
+  const dog = analysis.dog as { dogname?: string; name?: string; breed?: string | null; years?: string | number; months?: string | number } | null;
+  const dogName = dog?.dogname ?? dog?.name ?? null;
   const dogFields = {
     dog_name: dogName,
-    dog_breed: dog?.breed ?? null,
-    dog_age_years: dog ? Math.round(((dog.years ?? 0) + (dog.months ?? 0) / 12) * 10) / 10 : null,
+    dog_breed: dog?.breed || null,
+    dog_age_years: dog ? Math.round(((Number(dog.years) || 0) + (Number(dog.months) || 0) / 12) * 10) / 10 : null,
   };
 
   // Existujúci lead: nezaškrtnuté políčko neodvoláva skôr daný súhlas.

@@ -2,6 +2,7 @@ import 'server-only';
 import { chipText, sensitivityNote, type StoredResult } from '@/lib/result';
 import { colorOf } from '@/lib/scoring/rules';
 import { signToken } from './tokens';
+import { GRANULA_CTA } from '@/lib/v2/granula';
 
 // Farby podľa docs/DIZAJN.md (semafor hodnotenia)
 const BG: Record<string, string> = {
@@ -49,10 +50,9 @@ export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, re
     : `<p>Porovnanie s trhom: lepšie ako <strong>${result.percentile} %</strong> z ${result.market_count} granúl na slovenskom trhu (zber 2026-11).</p>`;
   const caps = result.caps.length ? `<p style="color:#555">Uplatnené obmedzenia: ${result.caps.map(esc).join('; ')}.</p>` : '';
   // Analyzér 2.0: ako sedí psovi, dávka, hlavné zistenia, ukazovatele
-  const icon = { ok: '✅', plus: '✅', warn: '⚠️', no: '❌' } as const;
-  const fit = result.fit ? `<div style="border:1.6px solid #000;background:#fff;padding:12px 14px;margin:14px 0">
-      <p style="margin:0 0 6px;font-weight:900;text-transform:uppercase">${icon[result.fit.level]} ${esc(result.fit.title)}${dogName ? ` pre psa ${esc(dogName)}` : ''}</p>
-      ${result.fit.reasons.map((x) => `<div>${icon[x.level]} ${esc(x.text)}</div>`).join('')}
+  const fit = result.fit && typeof result.fit.score === 'number' ? `<div style="border:1.6px solid #000;background:#fff;padding:12px 14px;margin:14px 0">
+      <p style="margin:0 0 6px;font-weight:900;text-transform:uppercase">Ako sa hodí${dogName ? ` pre psa ${esc(dogName)}` : ''}: ${result.fit.score}/100 · ${esc(result.fit.title)}</p>
+      ${result.fit.reasons.map((x) => `<div>${x.info ? 'ℹ️' : x.cap !== undefined ? '❌' : '⚠️'} ${esc(x.text)}</div>`).join('')}
       ${result.dose ? `<p style="margin:8px 0 0"><strong>Odporúčaná dávka: cca ${result.dose.grams} g denne</strong> (odhad). Začni touto dávkou a podľa váhy dolaď o ±10 %.</p>` : ''}
       ${result.fit.vetNote ? '<p style="margin:6px 0 0;font-size:12px;color:#3d3d3d">Nie je to veterinárna rada.</p>' : ''}
     </div>` : '';
@@ -63,6 +63,26 @@ export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, re
   const inds = result.indicators?.length ? `<table style="width:100%;border-collapse:collapse;font-size:14px;margin:10px 0">
       ${result.indicators.map((i) => `<tr><td style="padding:4px 0;font-weight:700">${esc(i.label)}</td><td style="padding:4px 0;text-align:right">${chip(colorOf(i.points), esc(i.word))}</td></tr>`).join('')}
     </table>` : '';
+
+  const g = result.granula;
+  const dn = dogName ? esc(dogName) : 'tvojho psa';
+  const granulaBox = !g ? '' : `<div style="margin-top:20px;padding:16px;border:1.6px solid #000;background:#FFF7EE">
+      <p style="margin:0 0 8px"><span style="display:inline-block;background:#FF6900;color:#000;font-weight:900;font-style:italic;padding:4px 9px">GRANULA!</span></p>
+      <p style="margin:0 0 4px;font-size:16px;font-weight:900;text-transform:uppercase">Granule na mieru pre psa ${dn}</p>
+      <p style="margin:0 0 10px;font-size:12px;color:#3d3d3d">Analyzér prevádzkuje Granula. Naše receptúry hodnotíme rovnakou verejnou metodikou ako všetky ostatné.</p>
+      ${!g.available ? `<p style="margin:0">Pre psa ${dn} teraz nemáme vhodnú receptúru.</p>` : `
+      <p style="margin:0 0 6px"><strong>Granula ${esc(g.name ?? '')}</strong> – ${g.better ? 'vyššie skóre zloženia aj lepšia zhoda s potrebami' : `granule vyskladané podľa potrieb psa ${dn}`}.</p>
+      ${(g.why ?? []).map((w) => `<p style="margin:0 0 4px;font-size:13px">${esc(w)}</p>`).join('')}
+      <table style="width:100%;border-collapse:collapse;font-size:13px;margin:10px 0">
+        <tr><td></td><td style="font-weight:900;padding:4px">Hodnotené krmivo</td><td style="font-weight:900;padding:4px">Granula</td></tr>
+        <tr><td style="padding:4px">Skóre zloženia</td><td style="padding:4px">${result.score ?? '–'}/100</td><td style="padding:4px">${g.score ?? '–'}/100</td></tr>
+        <tr><td style="padding:4px">Hodí sa</td><td style="padding:4px">${result.fit?.score ?? '–'}/100</td><td style="padding:4px">${g.fit?.score ?? '–'}/100</td></tr>
+        <tr><td style="padding:4px">Mäso</td><td style="padding:4px">${result.parts?.meat_pct != null ? `${result.parts.meat_pct} %` : 'neuvádza'}</td><td style="padding:4px">${g.meat_pct != null ? `${g.meat_pct} %` : 'neuvádza'}</td></tr>
+        <tr><td style="padding:4px">Dávka denne</td><td style="padding:4px">${result.dose ? `cca ${result.dose.grams} g` : '–'}</td><td style="padding:4px">cca ${g.grams} g</td></tr>
+      </table>
+      ${g.pricePerDay != null ? `<p style="margin:0 0 10px;font-size:13px">Cca ${g.pricePerDay.toFixed(2).replace('.', ',')} € na deň (vrece ${esc(g.bagLabel ?? '')}, s mesačným predplatným).</p>` : ''}
+      <a href="${GRANULA_CTA}" style="display:inline-block;background:#FF6900;color:#000;border:1.6px solid #000;padding:12px 20px;font-weight:900;text-transform:uppercase;text-decoration:none">Objednať granule pre psa ${dn} →</a>`}
+    </div>`;
 
   const consentBox = consentGiven
     ? `<p style="font-size:12px;color:#3d3d3d">Novinky od Granuly už nechceš dostávať? <a href="${appUrl()}/suhlas?akcia=odvolat&t=${signToken('revoke', leadId)}">Odvolať súhlas</a>.</p>`
@@ -78,11 +98,7 @@ export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, re
     <table style="width:100%;border-collapse:collapse;font-size:14px;border-top:1.6px solid #000">${rows}</table>
     <p style="font-size:13px;color:#3d3d3d;margin-top:16px">Hodnotíme iba text zloženia podľa verejnej <a style="color:#0047BB" href="${appUrl()}/metodika">metodiky</a> (verzia ${esc(result.methodology_version)}). Farba je vždy doplnená textom a číslom.</p>
     </div>
-    <div style="margin-top:20px;padding:16px;border:1.6px solid #000;background:#FFF7EE">
-      <p style="margin:0 0 8px"><span style="display:inline-block;background:#FF6900;color:#000;font-weight:900;font-style:italic;padding:4px 9px">GRANULA!</span></p>
-      <p style="margin:0 0 6px;font-size:12px;font-weight:900;text-transform:uppercase">Od prevádzkovateľa: Granula</p>
-      <p style="margin:0">Analyzér prevádzkuje Granula. Hodnotenie je pre všetky krmivá rovnaké vrátane našich. Viac na <a style="color:#0047BB" href="https://granula.sk">granula.sk</a>.</p>
-    </div>
+    ${granulaBox}
     ${consentBox}
   </div></body></html>`;
 

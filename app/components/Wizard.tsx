@@ -78,12 +78,12 @@ export default function Wizard() {
           <ul className="steps">
             <li className={line >= 1 ? 'done' : ''}>{created ? `Čítame ${created.itemCount} ${created.itemCount === 1 ? 'zložku' : created.itemCount < 5 ? 'zložky' : 'zložiek'}…` : 'Čítame zloženie…'}</li>
             <li className={line >= 2 ? 'done' : ''}>{created ? `Porovnávame s ${created.marketCount.toLocaleString('sk-SK')} granulami…` : 'Porovnávame s trhom…'}</li>
-            {(!created || created.hasDose) && <li className={line >= 3 ? 'done' : ''}>Počítame dávku pre psa {dog.name}…</li>}
+            {(!created || created.hasDose) && <li className={line >= 3 ? 'done' : ''}>Počítame dávku pre psa {dog.dogname}…</li>}
           </ul>
         </div>
       )}
 
-      {step === 'email' && created && <EmailGate analysisId={created.id} dogName={dog.name} />}
+      {step === 'email' && created && <EmailGate analysisId={created.id} dogName={dog.dogname} />}
 
       <Turnstile onToken={onToken} resetKey={resetKey} />
     </div>

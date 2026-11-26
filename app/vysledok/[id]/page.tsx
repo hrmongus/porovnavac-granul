@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { adminClient } from '@/lib/server/admin';
 import type { StoredResult } from '@/lib/result';
-import { Cta, Findings, FitBox, IngredientList, Indicators, ScoreBox } from '@/app/components/ResultTable';
+import { Findings, GranulaBlock, FitBox, IngredientList, Indicators, ScoreBox } from '@/app/components/ResultTable';
 import EmailGate from '@/app/components/EmailGate';
 
 export const dynamic = 'force-dynamic';
@@ -14,8 +14,8 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const { data } = await adminClient().from('analyses').select('id, result, lead_id, dog, created_at').eq('id', id).maybeSingle();
   if (!data) notFound();
-  const dog = data.dog as { name?: string; sex?: string } | null;
-  const dogName = dog?.name || 'tvoj pes';
+  const dog = data.dog as { dogname?: string; name?: string; sex?: string } | null;
+  const dogName = dog?.dogname || dog?.name || 'tvoj pes';
   const female = dog?.sex === 'fenka';
 
   // Výsledok sa zobrazí až po zadaní mena a e-mailu.
@@ -43,7 +43,7 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
         {r.product && <> · zloženie podľa etikety, zdroj: {r.product.source ?? 'neuvedený'}</>} ·{' '}
         <Link href={`/nahlasit-chybu?analyza=${data.id}`}>Nahlásiť chybu</Link> · <Link href="/">Vyhodnotiť ďalšie granule</Link>
       </p>
-      <Cta dogName={dogName} />
+      <GranulaBlock r={r} dogName={dogName} female={female} />
     </div>
   );
 }

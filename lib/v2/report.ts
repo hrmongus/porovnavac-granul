@@ -2,7 +2,7 @@
 // Deterministické pravidlá, bez AI. Hodnotenie zloženia samotné je v lib/scoring/analyze.ts.
 import type { AnalysisResult, AnalyzedItem } from '../scoring/analyze';
 import { deacc } from '../scoring/rules';
-import { dailyKcal, derive, PARAMS, type DogAnswers } from '../dog/engine';
+import { compute, dailyKcal, type DogAnswers } from '../dog/engine';
 import { energyPer100g, parseAnalytical } from './nutrition';
 
 /** Údaje o vybranom produkte z databázy (pri texte/fotke null). */
@@ -17,140 +17,145 @@ export interface ProductInfo {
   additives_raw: string | null;
 }
 
-export type FitLevel = 'ok' | 'warn' | 'no';
-export interface FitReason { level: FitLevel | 'plus'; text: string }
-export interface Fit { level: FitLevel; title: string; reasons: FitReason[]; vetNote: boolean }
-
 export interface Indicator { key: 'quality' | 'meat' | 'processing' | 'transparency'; label: string; points: number; word: string; text: string }
+
+export type FitLevel = 'vyborne' | 'vyhrady' | 'skor-nie' | 'nie';
+/** Dôvod s odpočtom (cap = strop pri alergii); info = bez odpočtu (napr. chýbajú analytické zložky). */
+export interface FitReason { text: string; points: number; cap?: number; info?: boolean; health?: boolean }
+export interface Fit { score: number; level: FitLevel; title: string; reasons: FitReason[]; vetNote: boolean }
+
+export const FIT_TITLES: Record<FitLevel, string> = {
+  vyborne: 'Hodí sa výborne', vyhrady: 'Hodí sa s výhradami', 'skor-nie': 'Skôr sa nehodí', nie: 'Nehodí sa',
+};
+export const fitLevelOf = (score: number): FitLevel => (score >= 85 ? 'vyborne' : score >= 65 ? 'vyhrady' : score >= 40 ? 'skor-nie' : 'nie');
 
 export const ALLERGENS: { id: string; label: string; rx: RegExp }[] = [
   { id: 'kuracie', label: 'kuracie', rx: /kurac|kurat|kura\b|kure|kurec|kurc|chicken/ },
   { id: 'hovadzie', label: 'hovädzie', rx: /hovad|hovez|beef|telac|telec/ },
   { id: 'bravcove', label: 'bravčové', rx: /bravc|vepr|pork/ },
-  { id: 'morka', label: 'morka', rx: /morc|morka|morky|kruti|krocan|turkey/ },
-  { id: 'kacica', label: 'kačica', rx: /kacac|kacic|kacka|kachn|duck/ },
-  { id: 'hus', label: 'hus', rx: /husac|husi\b|hus\b|goose/ },
+  { id: 'morka', label: 'morčacie', rx: /morc|morka|morky|kruti|krocan|turkey/ },
+  { id: 'kacica', label: 'kačacie', rx: /kacac|kacic|kacka|kachn|duck/ },
+  { id: 'hus', label: 'husacie', rx: /husac|husi\b|hus\b|goose/ },
   { id: 'jahna', label: 'jahňacie', rx: /jahn|jehne|lamb|ovci|ovc/ },
-  { id: 'jelen', label: 'jeleň', rx: /jelen|venison/ },
-  { id: 'kralik', label: 'králik', rx: /kral|rabbit/ },
+  { id: 'jelen', label: 'jelenie', rx: /jelen|venison/ },
+  { id: 'kralik', label: 'králičie', rx: /kral|rabbit/ },
   { id: 'ryby', label: 'ryby', rx: /\bryb|losos|sled|tresk|tuniak|sardin|makrel|pstruh|platesa|kapor|fish|salmon|herring/ },
   { id: 'vajcia', label: 'vajcia', rx: /vajc|vajec|\begg/ },
-  { id: 'ryza', label: 'ryža', rx: /ryz|rice/ },
+  { id: 'ryza', label: 'ryžu', rx: /ryz|rice/ },
   { id: 'zemiaky', label: 'zemiaky', rx: /^(?!.*sladk).*(zemiak|brambor|potato)/ },
-  { id: 'psenica', label: 'pšenica', rx: /psenic|wheat/ },
-  { id: 'kukurica', label: 'kukurica', rx: /kukuric|corn\b|maize/ },
-  { id: 'soja', label: 'sója', rx: /\bsoj|soya|soy\b/ },
+  { id: 'psenica', label: 'pšenicu', rx: /psenic|wheat/ },
+  { id: 'kukurica', label: 'kukuricu', rx: /kukuric|corn\b|maize/ },
+  { id: 'soja', label: 'sóju', rx: /\bsoj|soya|soy\b/ },
 ];
 const POULTRY = new Set(['kuracie', 'morka', 'kacica', 'hus']);
 const SPECIES = ALLERGENS.filter((a) => !['ryza', 'zemiaky', 'psenica', 'kukurica', 'soja', 'vajcia'].includes(a.id));
 
 const WORDS = (p: number) => (p >= 90 ? 'Výborné' : p >= 70 ? 'Dobré' : p >= 50 ? 'Priemer' : 'Slabé');
 const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
-
-/** Text položky bez obsahu zátvoriek? Nie – alergény sa hľadajú aj v zátvorkách (napr. „tuk (z kuracieho)“). */
 const itemText = (it: AnalyzedItem) => deacc(`${it.raw} ${it.name ?? ''}`);
+const fmt = (n: number) => String(Math.round(n * 10) / 10).replace('.', ',');
 
 function stageOfProduct(p: ProductInfo): 'puppy' | 'adult' | 'senior' | null {
-  const n = deacc(`${p.name} ${p.life_stage ?? ''}`);
-  if (/puppy|junior|stena|steniat|stenat|starter|\bstena\b/.test(n)) return 'puppy';
-  if (/senior|mature|\b7\+|\b8\+|aging/.test(n)) return 'senior';
+  const ls = p.life_stage;
+  if (ls === 'stena') return 'puppy';
+  if (ls === 'dospely') return 'adult';
+  if (ls === 'senior') return 'senior';
+  if (ls === 'vsetky') return null;
+  const n = deacc(p.name);
+  if (/puppy|junior|stena|steniat|stenat|stene\b|starter/.test(n)) return 'puppy';
+  if (/senior|mature|aging/.test(n)) return 'senior';
   if (/adult|dospel/.test(n)) return 'adult';
   return null;
 }
 
 function sizeOfProduct(p: ProductInfo): 'small' | 'medium' | 'large' | null {
   const n = deacc(p.name);
-  if (/\bmini\b|\bsmall\b|\btoy\b|\bx-?small\b|male plemena|malych plemien/.test(n)) return 'small';
-  if (/\bmaxi\b|\blarge\b|\bgiant\b|\bxl\b|velke plemena|velkych plemien/.test(n)) return 'large';
-  if (/\bmedium\b|stredne plemena|strednych plemien/.test(n)) return 'medium';
+  if (/\bmini\b|\bsmall\b|\btoy\b|\bx-?small\b/.test(n)) return 'small';
+  if (/\bmaxi\b|\blarge\b|\bgiant\b/.test(n)) return 'large';
+  if (/\bmedium\b/.test(n)) return 'medium';
   return null;
 }
 
+/**
+ * Ako sa krmivo hodí pre psa – skóre 0–100 (docs/ANALYZER_V2.md, bod 5).
+ * Rovnaké pravidlá pre každé krmivo vrátane receptúr Granula. Fáza a veľkosť psa z engine.js (derive).
+ */
 export function fitForDog(r: AnalysisResult, dog: DogAnswers, product: ProductInfo | null): Fit {
-  const d = derive(dog);
-  const reasons: FitReason[] = [];
-  let vetNote = false;
+  const d = compute(dog).derived;
+  const name = dog.dogname || 'pes';
   const items = r.items;
+  const reasons: FitReason[] = [];
 
-  // Alergie
+  // Alergia → strop 20
   for (const id of dog.allergies) {
     const al = ALLERGENS.find((a) => a.id === id);
     if (!al) continue;
     const hit = items.find((it) => al.rx.test(itemText(it)));
-    if (hit) {
-      reasons.push({ level: 'no', text: `Obsahuje ${al.label} (${lower(hit.raw)}).` });
-      vetNote = true;
-    } else if (POULTRY.has(id)) {
+    if (hit) reasons.push({ text: `Obsahuje ${al.label} (${lower(hit.raw)}) – ${name} naň nemusí reagovať dobre.`, points: 80, cap: 20, health: true });
+    else if (POULTRY.has(id)) {
       const poultry = items.find((it) => /hydin|drub|poultry/.test(itemText(it)));
-      if (poultry) {
-        reasons.push({ level: 'warn', text: `Obsahuje hydinu bez uvedenia druhu (${lower(poultry.raw)}) – ${al.label} sa nedá vylúčiť.` });
-        vetNote = true;
-      }
+      if (poultry) reasons.push({ text: `Obsahuje hydinu bez uvedenia druhu (${lower(poultry.raw)}) – ${al.label} sa nedá vylúčiť.`, points: 80, cap: 20, health: true });
     }
   }
 
-  // Životná fáza a veľkosť (podľa názvu produktu)
+  // Fáza a veľkosť
   if (product) {
     const ps = stageOfProduct(product);
-    const dogStage = d.isPuppy ? 'puppy' : d.stage === 'senior' ? 'senior' : 'adult';
-    if (ps && ps !== dogStage && !(ps === 'adult' && dogStage === 'senior')) {
-      const names = { puppy: 'šteňatá', adult: 'dospelých psov', senior: 'seniorov' } as const;
-      reasons.push({ level: 'warn', text: `Krmivo je určené pre ${names[ps]}, ${dog.name || 'tvoj pes'} je ${dogStage === 'puppy' ? 'šteňa' : dogStage === 'senior' ? 'senior' : 'dospelý'}.` });
-    }
+    if (d.isPuppy && (ps === 'adult' || ps === 'senior')) reasons.push({ text: 'Krmivo nie je určené pre šteňatá v raste.', points: 30 });
+    if (!d.isPuppy && ps === 'puppy') reasons.push({ text: `Krmivo je pre šteňatá, ${name} je ${d.stage === 'senior' ? 'senior' : 'dospelý'}.`, points: 15 });
     const pz = sizeOfProduct(product);
-    if (pz === 'small' && d.largeGiant) reasons.push({ level: 'warn', text: 'Krmivo je pre malé plemená, granula môže byť pre veľkého psa malá.' });
-    if (pz === 'large' && d.small) reasons.push({ level: 'warn', text: 'Krmivo je pre veľké plemená, granula môže byť pre malého psa veľká.' });
+    const dogSmall = d.small;
+    if ((pz === 'small' && (d.largeGiant || d.size === 'stredne')) || (pz === 'large' && dogSmall) || (pz === 'medium' && (dogSmall || d.size === 'obrie'))) {
+      reasons.push({ text: `Krmivo je výslovne pre ${pz === 'small' ? 'malé' : pz === 'large' ? 'veľké' : 'stredné'} plemená.`, points: 10 });
+    }
   }
 
-  // Analytické zložky (len pri produkte z databázy)
+  // Tuk a bielkoviny (len ak ich výrobca uvádza)
   const a = parseAnalytical(product?.analytical_raw);
+  const lowActivity = dog.activity === 'doma' || d.stage === 'senior';
+  const fatRelevant = d.pancreas || d.obese || dog.focus.includes('vaha') || d.active || lowActivity;
   if (a) {
-    if (dog.focus.includes('pankreas') && a.fat > 14) {
-      reasons.push({ level: 'warn', text: `Má ${fmt(a.fat)} % tuku. Pri problémoch s pankreasom sa poraď s veterinárom.` });
-      vetNote = true;
-    }
-    if ((d.obese || dog.focus.includes('vaha')) && a.fat >= 16) {
-      reasons.push({ level: 'warn', text: `Má ${fmt(a.fat)} % tuku – na chudnutie je to veľa.` });
-      vetNote = true;
-    }
-    if (d.active && (a.protein < 24 || a.fat < 14)) {
-      reasons.push({ level: 'warn', text: `Pre aktívneho psa má málo ${a.protein < 24 ? `bielkovín (${fmt(a.protein)} %)` : `tuku (${fmt(a.fat)} %)`}.` });
-    }
+    if (d.pancreas && a.fat > 18) reasons.push({ text: `Má ${fmt(a.fat)} % tuku. Pri problémoch s pankreasom sa poraď s veterinárom.`, points: 40, health: true });
+    else if (d.pancreas && a.fat > 14) reasons.push({ text: `Má ${fmt(a.fat)} % tuku. Pri problémoch s pankreasom sa poraď s veterinárom.`, points: 30, health: true });
+    if ((d.obese || dog.focus.includes('vaha')) && a.fat >= 16) reasons.push({ text: `Má ${fmt(a.fat)} % tuku – na chudnutie je to veľa.`, points: 20, health: true });
+    if (d.active && a.protein < 24) reasons.push({ text: `Pre aktívneho psa má málo bielkovín (${fmt(a.protein)} %).`, points: 15 });
+    if (d.active && a.fat < 14) reasons.push({ text: `Pre aktívneho psa má málo tuku (${fmt(a.fat)} %).`, points: 10 });
+    if (lowActivity && !d.active && a.fat >= 18) reasons.push({ text: `Má ${fmt(a.fat)} % tuku – pri malom pohybe je to veľa.`, points: 10 });
+  } else if (fatRelevant) {
+    reasons.push({ text: 'Obsah tuku výrobca neuvádza – nevieme posúdiť.', points: 0, info: true });
+  }
+
+  // Citlivé trávenie, „nesedí mu každé mäso“
+  if (dog.focus.includes('travenie') || dog.focus.includes('alergia')) {
+    const species = SPECIES.filter((s) => items.some((it) => s.rx.test(itemText(it)))).length;
+    const cheapTop5 = items.slice(0, 5).find((it) => /psenic|wheat|kukuric|corn\b|maize|\bsoj|soy/.test(itemText(it)));
+    if (species >= 3) reasons.push({ text: `Obsahuje ${species} druhy živočíšnych surovín – pri citlivom trávení býva lepšie menej.`, points: 15, health: true });
+    if (cheapTop5) reasons.push({ text: `Medzi prvými piatimi zložkami je ${lower(cheapTop5.raw)} – pri citlivom trávení častý problém.`, points: 10, health: true });
   }
 
   // Kĺby
-  if (d.largeGiant || d.stage === 'senior' || dog.focus.includes('klby')) {
+  if (dog.focus.includes('kby') || d.largeGiant || d.stage === 'senior') {
     const all = deacc(`${items.map((it) => it.raw).join(' ')} ${product?.additives_raw ?? ''} ${product?.analytical_raw ?? ''}`);
-    if (/glukozamin|glucosamin|glukosamin|chondroitin/.test(all)) {
-      reasons.push({ level: 'plus', text: 'Obsahuje glukozamín alebo chondroitín na podporu kĺbov.' });
-    }
+    if (!/glukozamin|glucosamin|glukosamin|chondroitin/.test(all)) reasons.push({ text: 'Neobsahuje glukozamín ani chondroitín na podporu kĺbov.', points: 5 });
   }
 
-  // Citlivé trávenie
-  if (dog.focus.includes('travenie')) {
-    const species = SPECIES.filter((s) => items.some((it) => s.rx.test(itemText(it)))).length;
-    const cheapTop5 = items.slice(0, 5).find((it) => /psenic|wheat|kukuric|corn\b|maize|\bsoj|soy/.test(itemText(it)));
-    if (species >= 3) reasons.push({ level: 'warn', text: `Obsahuje ${species} druhy živočíšnych surovín – pri citlivom trávení býva lepšie menej.` });
-    else if (cheapTop5) reasons.push({ level: 'warn', text: `Medzi prvými piatimi zložkami je ${lower(cheapTop5.raw)} – pri citlivom trávení častý problém.` });
-    if (species >= 3 || cheapTop5) vetNote = true;
-  }
-
-  const order = { no: 0, warn: 1, plus: 2, ok: 3 } as const;
-  reasons.sort((x, y) => order[x.level] - order[y.level]);
-  const level: FitLevel = reasons.some((x) => x.level === 'no') ? 'no' : reasons.some((x) => x.level === 'warn') ? 'warn' : 'ok';
-  const title = level === 'no' ? 'Nesedí' : level === 'warn' ? 'Sedí s výhradami' : 'Sedí';
-  return { level, title, reasons: reasons.slice(0, 3), vetNote };
+  let score = 100 - reasons.reduce((s, x) => s + (x.cap ? 0 : x.points), 0);
+  const caps = reasons.filter((x) => x.cap !== undefined).map((x) => x.cap as number);
+  if (caps.length) score = Math.min(score, ...caps);
+  score = Math.max(0, score);
+  const level = fitLevelOf(score);
+  const shown = reasons.filter((x) => !x.info).sort((x, y) => (y.cap !== undefined ? 1000 : y.points) - (x.cap !== undefined ? 1000 : x.points)).slice(0, 3);
+  const info = reasons.filter((x) => x.info);
+  return { score, level, title: FIT_TITLES[level], reasons: [...shown, ...info].slice(0, 3), vetNote: reasons.some((x) => x.health) };
 }
 
-const fmt = (n: number) => String(Math.round(n * 10) / 10).replace('.', ',');
-
-/** Denná dávka v gramoch, ak poznáme energiu krmiva. */
+/** Denná dávka v gramoch: energia krmiva (výrobca alebo metabolizable()) a potreba psa z engine.js. */
 export function doseFor(dog: DogAnswers, product: ProductInfo | null): { grams: number; estimatedEnergy: boolean } | null {
-  if (!product || !(dog.kg > 0)) return null;
+  if (!product) return null;
   const e = energyPer100g(product.energy_raw, parseAnalytical(product.analytical_raw));
   if (!e || e.kcal < 150 || e.kcal > 700) return null;
   const grams = (dailyKcal(dog) / e.kcal) * 100;
-  return { grams: Math.max(PARAMS.roundTo, Math.round(grams / PARAMS.roundTo) * PARAMS.roundTo), estimatedEnergy: e.estimated };
+  return { grams: Math.max(5, Math.round(grams / 5) * 5), estimatedEnergy: e.estimated };
 }
 
 const SHORT_REASON: Record<string, string> = {

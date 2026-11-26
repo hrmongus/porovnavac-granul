@@ -1,15 +1,16 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { BREEDS } from '@/lib/dog/breeds';
-import type { Activity, Body, DogAnswers, Focus } from '@/lib/dog/engine';
+import { BREEDS, type Activity, type Body, type DogAnswers } from '@/lib/dog/engine';
 import { ALLERGY_OPTIONS, FOCUS_OPTIONS } from '@/lib/dog/validate';
 
+/** Prázdne odpovede v tvare konfigurátora na granula.sk. */
 export const EMPTY_DOG: DogAnswers = {
-  name: '', sex: 'pes', breed: null, kg: 0, years: 0, months: 0,
-  activity: 'mesto', neutered: 'nie', body: 'akurat', focus: [], allergies: [],
+  dogname: '', sex: 'pes', breed: '', breedSet: false, kg: '', years: '', months: '', weeks: '',
+  activity: 'mesto', neutered: 'nie', pregnant: '', body: 'akurat', focus: [], allergies: [],
 };
 
 const fold = (s: string) => s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const toNum = (s: string) => parseFloat(s.replace(',', '.'));
 
 function Choice<T extends string>({ name, value, options, onChange }: {
   name: string; value: T; options: { id: T; label: string }[]; onChange: (v: T) => void;
@@ -26,7 +27,7 @@ function Choice<T extends string>({ name, value, options, onChange }: {
   );
 }
 
-/** 5 obrazoviek otázok o psovi (zhodné s konfigurátorom na granula.sk). */
+/** 5 obrazoviek otázok o psovi – hodnoty rovnaké ako v konfigurátore na granula.sk. */
 export default function DogQuestions({ value, onChange, onDone, onBack }: {
   value: DogAnswers; onChange: (d: DogAnswers) => void; onDone: () => void; onBack: () => void;
 }) {
@@ -34,7 +35,7 @@ export default function DogQuestions({ value, onChange, onDone, onBack }: {
   const [breedQ, setBreedQ] = useState(() => BREEDS.find((b) => b.id === value.breed)?.name ?? '');
   const [error, setError] = useState<string | null>(null);
   const set = (p: Partial<DogAnswers>) => onChange({ ...value, ...p });
-  const dog = value.name.trim() || 'tvoj pes';
+  const dog = value.dogname.trim() || 'tvoj pes';
 
   const breedHits = useMemo(() => {
     const q = fold(breedQ.trim());
@@ -44,13 +45,18 @@ export default function DogQuestions({ value, onChange, onDone, onBack }: {
 
   function next() {
     setError(null);
-    if (step === 1 && value.name.trim().length < 1) return setError('Napíš meno psa.');
-    if (step === 3 && !(value.kg > 0)) return setError('Zadaj hmotnosť psa.');
-    if (step === 3 && value.years === 0 && value.months === 0) return setError('Zadaj vek psa.');
+    if (step === 1 && value.dogname.trim().length < 1) return setError('Napíš meno psa.');
+    if (step === 3 && !(toNum(value.kg) > 0)) return setError('Zadaj hmotnosť psa.');
+    if (step === 3 && !(toNum(value.years || '0') > 0 || toNum(value.months || '0') > 0)) return setError('Zadaj vek psa.');
     if (step < 5) setStep(step + 1);
     else onDone();
   }
-  const toggle = <T extends string>(list: T[], id: T) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
+  const toggle = (list: string[], id: string) => {
+    if (id === 'nic') return list.includes('nic') ? [] : ['nic'];
+    const rest = list.filter((x) => x !== 'nic');
+    return rest.includes(id) ? rest.filter((x) => x !== id) : [...rest, id];
+  };
+  const canBePregnant = value.sex === 'fenka' && value.neutered === 'nie';
 
   return (
     <form className="card stack" onSubmit={(e) => { e.preventDefault(); next(); }}>
@@ -61,9 +67,9 @@ export default function DogQuestions({ value, onChange, onDone, onBack }: {
           <h3>Ako sa volá tvoj pes?</h3>
           <div>
             <label htmlFor="dog-name">Meno</label>
-            <input id="dog-name" type="text" maxLength={40} value={value.name} onChange={(e) => set({ name: e.target.value })} autoFocus />
+            <input id="dog-name" type="text" maxLength={40} value={value.dogname} onChange={(e) => set({ dogname: e.target.value })} autoFocus />
           </div>
-          <Choice name="sex" value={value.sex} onChange={(sex) => set({ sex })}
+          <Choice name="sex" value={value.sex} onChange={(sex) => set({ sex, pregnant: sex === 'pes' ? '' : value.pregnant })}
             options={[{ id: 'pes', label: 'Pes' }, { id: 'fenka', label: 'Fenka' }]} />
         </>
       )}
@@ -74,12 +80,12 @@ export default function DogQuestions({ value, onChange, onDone, onBack }: {
           <div>
             <label htmlFor="breed">Plemeno</label>
             <input id="breed" type="text" autoComplete="off" value={breedQ} autoFocus
-              onChange={(e) => { setBreedQ(e.target.value); set({ breed: null }); }} placeholder="Napr. labrador, kríženec…" />
+              onChange={(e) => { setBreedQ(e.target.value); set({ breed: '', breedSet: false }); }} placeholder="Napr. labrador, kríženec…" />
           </div>
           {breedHits.length > 0 && (
             <ul className="hits" aria-label="Plemená">
               {breedHits.map((b) => (
-                <li key={b.id}><button type="button" onClick={() => { set({ breed: b.id, kg: value.kg || b.avg }); setBreedQ(b.name); }}>{b.name} <span className="hint">({b.range} kg)</span></button></li>
+                <li key={b.id}><button type="button" onClick={() => { set({ breed: b.id, breedSet: true, kg: value.kg || String(b.avg) }); setBreedQ(b.name); }}>{b.name} <span className="hint">({b.range} kg)</span></button></li>
               ))}
             </ul>
           )}
@@ -92,17 +98,17 @@ export default function DogQuestions({ value, onChange, onDone, onBack }: {
           <h3>Koľko {dog} váži a koľko má rokov?</h3>
           <div>
             <label htmlFor="kg">Hmotnosť (kg)</label>
-            <input id="kg" type="text" inputMode="decimal" value={value.kg ? String(value.kg).replace('.', ',') : ''}
-              onChange={(e) => set({ kg: parseFloat(e.target.value.replace(',', '.')) || 0 })} />
+            <input id="kg" type="text" inputMode="decimal" value={value.kg.replace('.', ',')}
+              onChange={(e) => set({ kg: e.target.value.replace(',', '.').replace(/[^0-9.]/g, '') })} />
           </div>
           <div className="row">
             <div>
               <label htmlFor="years">Roky</label>
-              <input id="years" type="text" inputMode="numeric" value={value.years || ''} onChange={(e) => set({ years: Math.min(25, parseInt(e.target.value, 10) || 0) })} />
+              <input id="years" type="text" inputMode="numeric" value={value.years} onChange={(e) => set({ years: e.target.value.replace(/\D/g, '').slice(0, 2) })} />
             </div>
             <div>
               <label htmlFor="months">Mesiace</label>
-              <input id="months" type="text" inputMode="numeric" value={value.months || ''} onChange={(e) => set({ months: Math.min(11, parseInt(e.target.value, 10) || 0) })} />
+              <input id="months" type="text" inputMode="numeric" value={value.months} onChange={(e) => set({ months: String(Math.min(11, +e.target.value.replace(/\D/g, '') || 0)).replace(/^0$/, '') })} />
             </div>
           </div>
         </>
@@ -112,14 +118,22 @@ export default function DogQuestions({ value, onChange, onDone, onBack }: {
         <>
           <h3>Ako vyzerá bežný deň?</h3>
           <Choice<Activity> name="activity" value={value.activity} onChange={(activity) => set({ activity })} options={[
-            { id: 'doma', label: 'Prevažne doma, krátke prechádzky' },
-            { id: 'mesto', label: 'Bežné prechádzky' },
-            { id: 'sport', label: 'Veľa behu, túry, šport' },
+            { id: 'doma', label: 'Prevažne doma' },
+            { id: 'mesto', label: '1–2 prechádzky denne' },
+            { id: 'sport', label: 'Beh, túry, šport' },
             { id: 'praca', label: 'Pracovný pes' },
           ]} />
-          <p className="field-title">Je kastrovaný?</p>
-          <Choice name="neutered" value={value.neutered} onChange={(neutered) => set({ neutered })}
+          <p className="field-title">Je kastrovan{value.sex === 'fenka' ? 'á' : 'ý'}?</p>
+          <Choice name="neutered" value={value.neutered} onChange={(neutered) => set({ neutered, pregnant: neutered === 'ano' ? '' : value.pregnant })}
             options={[{ id: 'ano', label: 'Áno' }, { id: 'nie', label: 'Nie' }]} />
+          {canBePregnant && (
+            <>
+              <p className="field-title">Je gravidná?</p>
+              <Choice name="pregnant" value={value.pregnant} onChange={(pregnant) => set({ pregnant })} options={[
+                { id: '', label: 'Nie' }, { id: 'early', label: 'Prvých 6 týždňov' }, { id: 'late', label: 'Posledné 3 týždne' },
+              ]} />
+            </>
+          )}
           <p className="field-title">Postava</p>
           <Choice<Body> name="body" value={value.body} onChange={(body) => set({ body })} options={[
             { id: 'chudsi', label: 'Chudší' }, { id: 'akurat', label: 'Akurát' }, { id: 'navyse', label: 'Kilo navyše' },
@@ -133,7 +147,7 @@ export default function DogQuestions({ value, onChange, onDone, onBack }: {
           <div className="choices">
             {FOCUS_OPTIONS.map((f) => (
               <label key={f.id} className="choice">
-                <input type="checkbox" checked={value.focus.includes(f.id)} onChange={() => set({ focus: toggle<Focus>(value.focus, f.id) })} />
+                <input type="checkbox" checked={value.focus.includes(f.id)} onChange={() => set({ focus: toggle(value.focus, f.id) })} />
                 <span>{f.label}</span>
               </label>
             ))}
@@ -142,7 +156,8 @@ export default function DogQuestions({ value, onChange, onDone, onBack }: {
           <div className="choices">
             {ALLERGY_OPTIONS.map((a) => (
               <label key={a.id} className="choice">
-                <input type="checkbox" checked={value.allergies.includes(a.id)} onChange={() => set({ allergies: toggle(value.allergies, a.id) })} />
+                <input type="checkbox" checked={value.allergies.includes(a.id)}
+                  onChange={() => set({ allergies: value.allergies.includes(a.id) ? value.allergies.filter((x) => x !== a.id) : [...value.allergies, a.id] })} />
                 <span>{a.label}</span>
               </label>
             ))}

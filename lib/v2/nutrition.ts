@@ -1,5 +1,6 @@
 // Analytické zložky a energia krmiva (docs/ANALYZER_V2.md, bod 6).
 import { deacc } from '../scoring/rules';
+import { metabolizable } from '../dog/engine';
 
 export interface Analytical {
   protein: number;
@@ -25,7 +26,10 @@ export function parseAnalytical(raw: string | null | undefined): Analytical | nu
   return { protein, fat, ash: g('popol|popel|ash'), fiber: g('vlakn|fib'), moisture: g('vlhk|voda|moist') };
 }
 
-/** Energia krmiva v kcal/100 g: uvedená výrobcom, inak odhad (modifikované Atwaterove faktory, NRC 2006). */
+/**
+ * Energia krmiva v kcal/100 g: uvedená výrobcom, inak rovnaký výpočet ako konfigurátor Granuly –
+ * metabolizable() z engine.js (NRC 2006). Chýbajúca vlhkosť = 10 %, popol = 7 % (docs/ANALYZER_V2.md, bod 6).
+ */
 export function energyPer100g(energyRaw: string | null | undefined, a: Analytical | null): { kcal: number; estimated: boolean } | null {
   if (energyRaw) {
     const t = deacc(energyRaw).replace(/(\d)\s+(\d{3})/g, '$1$2');
@@ -36,9 +40,7 @@ export function energyPer100g(energyRaw: string | null | undefined, a: Analytica
     m = t.match(/(\d+(?:[.,]\d+)?)\s*mj\s*\/\s*kg/);
     if (m) return { kcal: (num(m[1]) * 239) / 10, estimated: false };
   }
-  if (!a || a.ash === null || a.fiber === null) return null;
-  const moisture = a.moisture ?? 10;
-  const nfe = 100 - a.protein - a.fat - a.ash - a.fiber - moisture;
-  if (nfe < 0) return null;
-  return { kcal: 3.5 * a.protein + 8.5 * a.fat + 3.5 * nfe, estimated: true };
+  if (!a || a.fiber === null) return null;
+  const me = metabolizable({ protein: a.protein, fat: a.fat, ash: a.ash ?? 7, fiber: a.fiber, moisture: a.moisture ?? 10 });
+  return Number.isFinite(me.me) ? { kcal: me.me, estimated: true } : null;
 }

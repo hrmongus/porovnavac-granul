@@ -1,6 +1,7 @@
 import type { AnalysisResult } from './scoring/analyze';
 import type { Color } from './scoring/rules';
 import type { Fit, Indicator } from './v2/report';
+import type { GranulaPick } from './v2/granula';
 
 /** Uložený výsledok (analyses.result). Polia z analyzéra 2.0 sú voliteľné kvôli starším analýzam. */
 export interface StoredResult extends AnalysisResult {
@@ -8,6 +9,7 @@ export interface StoredResult extends AnalysisResult {
   market_count: number;
   product?: { brand: string; name: string; composition_date: string | null; source: string | null } | null;
   fit?: Fit;
+  granula?: GranulaPick;
   dose?: { grams: number; estimatedEnergy: boolean } | null;
   findings?: { good: string[]; bad: string[] };
   indicators?: Indicator[];
