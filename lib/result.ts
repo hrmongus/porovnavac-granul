@@ -47,7 +47,8 @@ export function toView(r: StoredResult, unlocked: boolean): ResultView {
   };
 }
 
-export function sensitivityNote(s: string | null): string | null {
+export function sensitivityNote(s: string | null, explanation?: string | null): string | null {
+  if (explanation && /alerg/i.test(explanation)) return null; // vysvetlenie to už uvádza
   if (s === 'kuracie') return 'Patrí medzi častejšie alergény.';
   return null;
 }

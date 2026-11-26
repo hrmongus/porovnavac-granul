@@ -28,7 +28,7 @@ export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, re
   const link = `${appUrl()}/vysledok/${analysisId}`;
   const rows = result.items.map((it) => {
     const label = it.score === null ? 'neznáma' : `${it.score} – ${COLOR_LABEL[it.color]}`;
-    const note = sensitivityNote(it.sensitivity);
+    const note = sensitivityNote(it.sensitivity, it.explanation);
     return `<tr>
       <td style="padding:8px;border-bottom:1px solid #ddd;vertical-align:top;color:#555">${it.position}.</td>
       <td style="padding:8px;border-bottom:1px solid #ddd;vertical-align:top">

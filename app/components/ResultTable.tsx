@@ -33,7 +33,7 @@ export function IngredientList({ r }: { r: ResultView }) {
   return (
     <ol className="ing-list" aria-label="Zložky v poradí z etikety">
       {r.items.map((it) => {
-        const note = sensitivityNote(it.sensitivity);
+        const note = sensitivityNote(it.sensitivity, it.explanation);
         return (
           <li key={it.position} className={`ing c-${it.color}`} style={{ background: 'var(--card)' }}>
             <span className="bar" aria-hidden="true" />
