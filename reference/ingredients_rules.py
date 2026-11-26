@@ -222,7 +222,7 @@ def explain_meat(animal, form):
     }
     return base[form]
 
-MEAT_SCORES = {'cerstve': 95, 'susene': 93, 'maso': 93, 'vnutor': 90, 'hydrolyz': 82, 'bielkov': 85, 'muck': 78, 'tuk': 85, 'vyvar': 75}
+MEAT_SCORES = {'cerstve': 100, 'susene': 100, 'maso': 100, 'vnutor': 97, 'hydrolyz': 85, 'bielkov': 90, 'muck': 80, 'tuk': 85, 'vyvar': 75}
 FAT_FISH = {'losos': 92, 'sleď': 90, 'treska': 88, 'sardinky': 90, 'makrela': 90, 'pstruh': 90, 'morské plody': 90}
 
 def form_of(t):
