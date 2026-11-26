@@ -109,7 +109,7 @@ export default function SourcePicker({ onReady, token, consumeToken }: {
         <div className="stack">
           <div>
             <label htmlFor="hladat">Značka alebo názov granúl</label>
-            <input id="hladat" type="text" autoComplete="off" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Napr. Acana Adult, Brit Care…" />
+            <input id="hladat" type="text" autoComplete="off" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Napr. Granula Jahňa s batátmi, Acana Adult…" />
           </div>
           {shownHits && shownHits.length > 0 && (
             <ul className="hits" role="listbox" aria-label="Návrhy">

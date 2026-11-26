@@ -205,12 +205,6 @@ textarea { min-height: 180px; resize: vertical; }
 @media (max-width: 480px) { .indicators summary { grid-template-columns: 1fr 70px; } .ind-bar { grid-column: 1 / -1; grid-row: 2; } }
 
 .btn.secondary { background: var(--g-mlieko-light); }
-.ing-wrap > summary { list-style: none; margin-bottom: 16px; }
-.ing-wrap > summary::-webkit-details-marker { display: none; }
-.ing-wrap[open] > summary::after { content: ' ↑'; }
-.ing details summary { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; cursor: pointer; list-style: none; }
-.ing details summary::-webkit-details-marker { display: none; }
-.ing { display: block; }
 
 .cta { border-top: var(--line); margin-top: 40px; padding-top: 24px; }
 .cta p { font-weight: 700; font-size: 18px; margin: 0 0 12px; }
@@ -231,3 +225,21 @@ textarea { min-height: 180px; resize: vertical; }
 .compare th, .compare td { padding: 8px; border-bottom: 1px solid #d6cfc6; text-align: left; vertical-align: top; }
 .compare thead th { border-bottom: var(--line); font-size: 12px; text-transform: uppercase; font-weight: 900; }
 .compare tbody th { font-weight: 700; }
+
+/* Rozklikávacie zložky */
+.toggle-all { width: auto; }
+.toggle-all::after { content: ''; }
+.ing { display: block; padding: 0; }
+.ing-toggle {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; width: 100%;
+  padding: 14px; border: 0; background: transparent; font: inherit; color: var(--g-noc); text-align: left; cursor: pointer;
+}
+.ing-toggle:hover { background: var(--g-mlieko); }
+.ing-toggle:focus-visible { outline: 3px solid var(--g-kobalt); outline-offset: -3px; }
+.ing-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ing-more { font-size: 13px; font-weight: 700; color: var(--g-kobalt); margin-top: 4px; }
+.ing-side { display: flex; align-items: center; gap: 8px; flex: none; }
+.ing-arrow { font-size: 18px; line-height: 1; width: 16px; text-align: center; }
+.ing .expl { margin: 0; padding: 0 14px 14px; font-size: 15px; }
+.ing.open { background: #fff; }
+@media (max-width: 420px) { .ing-side { flex-direction: column; align-items: flex-end; gap: 4px; } }

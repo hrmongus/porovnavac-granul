@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { COLOR_LEGEND, COLOR_NAME, chipText, sensitivityNote, type StoredResult } from '@/lib/result';
+import ClickableIngredients from './IngredientList';
+import { COLOR_LEGEND, COLOR_NAME, type StoredResult } from '@/lib/result';
 import { colorOf } from '@/lib/scoring/rules';
 
 
@@ -96,32 +97,15 @@ export function Indicators({ r }: { r: StoredResult }) {
 }
 
 export function IngredientList({ r }: { r: StoredResult }) {
-  const n = r.items.length;
   return (
-    <details className="ing-wrap">
-      <summary className="btn secondary">Zobraziť {n === 1 ? 'zložku' : `všetkých ${n} zložiek`}</summary>
-      <ol className="ing-list" aria-label="Zložky v poradí z etikety">
-        {r.items.map((it) => {
-          const note = sensitivityNote(it.sensitivity, it.explanation);
-          return (
-            <li key={it.position} className="ing">
-              <details>
-                <summary>
-                  <span className="raw"><span className="pos">{it.position}.</span>{it.raw}</span>
-                  <span className={`chip c-${it.color}`}>{chipText(it.color, it.score)}</span>
-                </summary>
-                {it.name && <div className="name">{it.name}</div>}
-                <div className="expl">{it.explanation}{note && ` ${note}`}</div>
-              </details>
-            </li>
-          );
-        })}
-      </ol>
+    <section className="stack" aria-labelledby="zlozky-title">
+      <h3 id="zlozky-title">Zložky <span className="hl">v poradí z etikety</span></h3>
+      <ClickableIngredients items={r.items} />
       {r.unknown_items.length > 0 && <p className="hint">Šedé zložky zatiaľ nepoznáme, do skóre sa nepočítajú a doplníme ich.</p>}
       {r.carbs != null && <p className="hint">Sacharidy odhadom {String(r.carbs).replace('.', ',')} % (z analytických zložiek). Len informácia, nehodnotia sa.</p>}
       {r.caps.length > 0 && <p className="hint">Uplatnené obmedzenie skóre: {r.caps.join('; ')}.</p>}
       <Legend />
-    </details>
+    </section>
   );
 }
 

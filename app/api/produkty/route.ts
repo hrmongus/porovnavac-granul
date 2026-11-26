@@ -23,10 +23,26 @@ export async function GET(req: Request) {
   const { catalog } = await loadReferenceData();
   const items = catalog
     .filter((p) => tokens.every((t) => p.search.includes(t)))
-    // najprv tie, kde značka/názov začína hľadaným slovom, potom abecedne
-    .sort((a, b) => Number(!a.search.startsWith(tokens[0])) - Number(!b.search.startsWith(tokens[0]))
-      || a.search.localeCompare(b.search))
+    .map((p) => ({ p, score: relevance(p.search, q, tokens) }))
+    // len podľa zhody s napísaným textom; pri rovnakej zhode kratší (presnejší) názov, potom abecedne
+    .sort((x, y) => y.score - x.score || x.p.search.length - y.p.search.length || x.p.search.localeCompare(y.p.search))
     .slice(0, 10)
-    .map(({ id: pid, brand, name }) => ({ id: pid, brand, name }));
+    .map(({ p: { id: pid, brand, name } }) => ({ id: pid, brand, name }));
   return Response.json({ items });
+}
+
+/** Ako dobre sedí značka + názov s hľadaným textom (bez ohľadu na značku). */
+function relevance(text: string, query: string, tokens: string[]): number {
+  let score = 0;
+  const at = text.indexOf(query);
+  if (at === 0) score += 150;                       // celý text na začiatku
+  else if (at > 0 && text[at - 1] === ' ') score += 100; // celý text od začiatku slova
+  else if (at > 0) score += 60;                      // celý text niekde v strede
+  const words = text.split(' ');
+  for (const t of tokens) {
+    if (words.includes(t)) score += 15;              // celé slovo
+    else if (words.some((w) => w.startsWith(t))) score += 10; // začiatok slova
+    else score += 3;                                 // časť slova
+  }
+  return score;
 }
