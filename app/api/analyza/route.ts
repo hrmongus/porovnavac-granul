@@ -61,7 +61,7 @@ export async function POST(req: Request) {
   const dose = doseFor(dog, product);
   const fit = fitForDog(r, dog, product);
   const granula = granulaPick(dog, await granulaProducts(), ref.aliases, {
-    score: r.score, fitScore: fit.score, productName: product?.name ?? null, isGranula: product?.brand === 'Granula',
+    score: r.score, fit, productName: product?.name ?? null, isGranula: product?.brand === 'Granula',
   });
   let sourceDomain: string | null = null;
   try { sourceDomain = product?.source_url ? new URL(product.source_url).hostname.replace(/^www\./, '') : null; } catch { sourceDomain = null; }

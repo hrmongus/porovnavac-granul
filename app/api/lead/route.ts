@@ -70,7 +70,7 @@ export async function POST(req: Request) {
 
   await sb.from('analyses').update({ lead_id: leadId }).eq('id', analysisId);
   // Odpovede o psovi (bez e-mailu) pre konfigurátor na granula.sk – odkaz ?kviz=<id> v tlačidle aj v e-maile
-  const quizId = await ensureQuizId(analysisId, parseDog(analysis.dog), analysis.granula_quiz_id);
+  const quizId = await ensureQuizId(analysisId, parseDog(analysis.dog), analysis.granula_quiz_id, (analysis.result as StoredResult).granula);
 
   const sent = await sendResultEmail({
     to: email,

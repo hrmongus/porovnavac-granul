@@ -66,13 +66,17 @@ export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, re
 
   const g = result.granula;
   const dn = dogName ? esc(dogName) : 'tvojho psa';
-  const granulaBox = !g ? '' : `<div style="margin-top:20px;padding:16px;border:1.6px solid #000;background:#FFF7EE">
-      <p style="margin:0 0 8px"><span style="display:inline-block;background:#FF6900;color:#000;font-weight:900;font-style:italic;padding:4px 9px">GRANULA!</span></p>
+  // bod 9.1: odporúča sa len receptúra Granula so „hodí sa“ 100/100; ak sa krmivo hodí na 100 alebo žiadna nemá 100, nič
+  const boxStart = `<div style="margin-top:20px;padding:16px;border:1.6px solid #000;background:#FFF7EE">
+      <p style="margin:0 0 8px"><span style="display:inline-block;background:#FF6900;color:#000;font-weight:900;font-style:italic;padding:4px 9px">GRANULA!</span></p>`;
+  const disclosure = '<p style="margin:0 0 10px;font-size:12px;color:#3d3d3d">Analyzér prevádzkuje Granula. Naše receptúry hodnotíme rovnakou verejnou metodikou ako všetky ostatné.</p>';
+  const granulaBox = !g || !g.mode || g.mode === 'none' ? ''
+    : g.mode === 'fits' ? (g.recipeId ? `${boxStart}${disclosure}<p style="margin:0 0 10px">Tieto granule sa psovi ${dn} hodia na 100 %.</p><a href="${esc(orderUrl)}" style="display:inline-block;background:#FF6900;color:#000;border:1.6px solid #000;padding:12px 20px;font-weight:900;text-transform:uppercase;text-decoration:none">Objednať granule pre psa ${dn} →</a></div>` : '')
+    : `${boxStart}
       <p style="margin:0 0 4px;font-size:16px;font-weight:900;text-transform:uppercase">Granule na mieru pre psa ${dn}</p>
-      <p style="margin:0 0 10px;font-size:12px;color:#3d3d3d">Analyzér prevádzkuje Granula. Naše receptúry hodnotíme rovnakou verejnou metodikou ako všetky ostatné.</p>
-      ${!g.available ? `<p style="margin:0">Pre psa ${dn} teraz nemáme vhodnú receptúru.</p>` : `
-      <p style="margin:0 0 6px"><strong>Granula ${esc(g.name ?? '')}</strong> – ${g.better ? 'vyššie skóre zloženia aj lepšia zhoda s potrebami' : `granule vyskladané podľa potrieb psa ${dn}`}.</p>
-      ${(g.why ?? []).map((w) => `<p style="margin:0 0 4px;font-size:13px">${esc(w)}</p>`).join('')}
+      ${disclosure}
+      <p style="margin:0 0 6px"><strong>Granula ${esc(g.name ?? '')}</strong> – ${g.better ? 'hodí sa lepšie a má aj vyššie skóre zloženia' : `granule vyskladané podľa potrieb psa ${dn}`}.</p>
+      ${g.why ? `<p style="margin:0 0 4px;font-size:13px">${esc(g.why)}</p>` : ''}
       <table style="width:100%;border-collapse:collapse;font-size:13px;margin:10px 0">
         <tr><td></td><td style="font-weight:900;padding:4px">Hodnotené krmivo</td><td style="font-weight:900;padding:4px">Granula</td></tr>
         <tr><td style="padding:4px">Skóre zloženia</td><td style="padding:4px">${result.score ?? '–'}/100</td><td style="padding:4px">${g.score ?? '–'}/100</td></tr>
@@ -81,8 +85,7 @@ export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, re
         <tr><td style="padding:4px">Dávka denne</td><td style="padding:4px">${result.dose ? `cca ${result.dose.grams} g` : '–'}</td><td style="padding:4px">cca ${g.grams} g</td></tr>
       </table>
       ${g.pricePerDay != null ? `<p style="margin:0 0 10px;font-size:13px">Cca ${g.pricePerDay.toFixed(2).replace('.', ',')} € na deň (vrece ${esc(g.bagLabel ?? '')}, s mesačným predplatným).</p>` : ''}
-      <a href="${esc(orderUrl)}" style="display:inline-block;background:#FF6900;color:#000;border:1.6px solid #000;padding:12px 20px;font-weight:900;text-transform:uppercase;text-decoration:none">Objednať granule pre psa ${dn} →</a>`}
-    </div>`;
+      <a href="${esc(orderUrl)}" style="display:inline-block;background:#FF6900;color:#000;border:1.6px solid #000;padding:12px 20px;font-weight:900;text-transform:uppercase;text-decoration:none">Objednať granule pre psa ${dn} →</a></div>`;
 
   const consentBox = consentGiven
     ? `<p style="font-size:12px;color:#3d3d3d">Novinky od Granuly už nechceš dostávať? <a href="${appUrl()}/suhlas?akcia=odvolat&t=${signToken('revoke', leadId)}">Odvolať súhlas</a>.</p>`

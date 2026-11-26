@@ -46,7 +46,7 @@ export function FitBox({ r, dogName, female }: { r: StoredResult; dogName: strin
           {f.reasons.map((x, i) => <li key={i}>{x.info ? 'ℹ️' : x.cap !== undefined ? '❌' : '⚠️'} {x.text}{!x.info && x.cap === undefined && <span className="hint"> (−{x.points})</span>}</li>)}
         </ul>
       )}
-      {f.reasons.length === 0 && <p>Podľa odpovedí sme nenašli nič, čo by nesedelo.</p>}
+      {f.score >= 100 && <p>Tieto granule sa psovi {dogName} hodia na 100 %.</p>}
       {r.dose && (
         <p className="dose">
           <strong>{dogName} by {female ? 'mala' : 'mal'} zjesť cca {r.dose.grams} g denne</strong> (odhad). Začni touto dávkou a podľa váhy dolaď o ±10 %.
@@ -128,42 +128,51 @@ export function Legend() {
 /** Bod 9: odporúčanie Granula – vizuálne oddelené, s označením prevádzkovateľa. */
 export function GranulaBlock({ r, dogName, female, orderUrl }: { r: StoredResult; dogName: string; female: boolean; orderUrl: string }) {
   const g = r.granula;
-  if (!g) return null;
+  // bod 9.1: žiadne odporúčanie, ak sa krmivo hodí na 100 (okrem tlačidla pri Granule) alebo ak žiadna receptúra nemá 100
+  if (!g || !g.mode || g.mode === 'none') return null;
+  const disclosure = <p className="hint">Analyzér prevádzkuje Granula. Naše receptúry hodnotíme rovnakou verejnou metodikou ako všetky ostatné.</p>;
+  if (g.mode === 'fits') {
+    if (!g.recipeId) return null; // iná značka so 100/100 – nič neponúkame
+    return (
+      <section className="granula-block" aria-labelledby="granula-title">
+        <h2 id="granula-title">Granule <span className="hl">pre psa {dogName}</span></h2>
+        {disclosure}
+        <div className="card stack">
+          <p>Granula {g.name} sa psovi {dogName} hodí na 100 %. Objednať si ju môžeš priamo na granula.sk.</p>
+          <a className="btn" href={orderUrl}>Objednať granule pre psa {dogName}</a>
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="granula-block" aria-labelledby="granula-title">
       <h2 id="granula-title">Granule na mieru <span className="hl">pre psa {dogName}</span></h2>
-      <p className="hint">Analyzér prevádzkuje Granula. Naše receptúry hodnotíme rovnakou verejnou metodikou ako všetky ostatné.</p>
-      {!g.available ? (
-        <p>Pre psa {dogName} teraz nemáme vhodnú receptúru.</p>
-      ) : (
-        <div className="card stack">
-          <div className="granula-head">
-            {/* eslint-disable-next-line @next/next/no-img-element -- fotka z granula.sk, bez optimalizácie */}
-            {g.img && <img src={g.img} alt={`Granula – ${g.name}`} width={120} height={120} loading="lazy" />}
-            <div>
-              <p className="picked"><strong>Granula</strong> {g.name}</p>
-              <p>{g.better ? `Pre psa ${dogName} vhodnejšie: vyššie skóre zloženia aj lepšia zhoda s potrebami.` : `Granule vyskladané podľa potrieb psa ${dogName}.`}</p>
-              {g.why?.map((w, i) => <p key={i} className="hint">{w}</p>)}
-            </div>
+      {disclosure}
+      <div className="card stack">
+        <div className="granula-head">
+          {/* eslint-disable-next-line @next/next/no-img-element -- fotka z granula.sk, bez optimalizácie */}
+          {g.img && <img src={g.img} alt={`Granula – ${g.name}`} width={120} height={120} />}
+          <div>
+            <p className="picked"><strong>Granula</strong> {g.name}</p>
+            <p>{g.better ? `Pre psa ${dogName} sa hodí lepšie a má aj vyššie skóre zloženia.` : `Granule vyskladané podľa potrieb psa ${dogName}.`}</p>
+            {g.why && <p className="hint">{g.why}</p>}
           </div>
-          {!g.sameAsInput && (
-            <table className="compare">
-              <thead><tr><th></th><th>{r.product ? `${r.product.brand} ${r.product.name}` : 'Tvoje granule'}</th><th>Granula {g.name}</th></tr></thead>
-              <tbody>
-                <tr><th>Skóre zloženia</th><td>{r.score ?? '–'}/100</td><td>{g.score ?? '–'}/100</td></tr>
-                <tr><th>Hodí sa pre psa {dogName}</th><td>{r.fit?.score ?? '–'}/100</td><td>{g.fit?.score ?? '–'}/100</td></tr>
-                <tr><th>Mäso v granulách</th><td>{r.parts?.meat_pct != null ? `${r.parts.meat_pct} %` : 'neuvádza'}</td><td>{g.meat_pct != null ? `${g.meat_pct} %` : 'neuvádza'}</td></tr>
-                <tr><th>Dávka denne</th><td>{r.dose ? `cca ${r.dose.grams} g` : '–'}</td><td>cca {g.grams} g</td></tr>
-              </tbody>
-            </table>
-          )}
-          <p>
-            {dogName} by {female ? 'mala' : 'mal'} zjesť cca <strong>{g.grams} g denne</strong>
-            {g.pricePerDay != null && <> · cca <strong>{g.pricePerDay.toFixed(2).replace('.', ',')} € na deň</strong> <span className="hint">(vrece {g.bagLabel}, s mesačným predplatným)</span></>}
-          </p>
-          <a className="btn" href={orderUrl}>Objednať granule pre psa {dogName}</a>
         </div>
-      )}
+        <table className="compare">
+          <thead><tr><th></th><th>{r.product ? `${r.product.brand} ${r.product.name}` : 'Tvoje granule'}</th><th>Granula {g.name}</th></tr></thead>
+          <tbody>
+            <tr><th>Skóre zloženia</th><td>{r.score ?? '–'}/100</td><td>{g.score ?? '–'}/100</td></tr>
+            <tr><th>Hodí sa pre psa {dogName}</th><td>{r.fit?.score ?? '–'}/100</td><td>{g.fit?.score ?? '–'}/100</td></tr>
+            <tr><th>Mäso v granulách</th><td>{r.parts?.meat_pct != null ? `${r.parts.meat_pct} %` : 'neuvádza'}</td><td>{g.meat_pct != null ? `${g.meat_pct} %` : 'neuvádza'}</td></tr>
+            <tr><th>Dávka denne</th><td>{r.dose ? `cca ${r.dose.grams} g` : '–'}</td><td>cca {g.grams} g</td></tr>
+          </tbody>
+        </table>
+        <p>
+          {dogName} by {female ? 'mala' : 'mal'} zjesť cca <strong>{g.grams} g denne</strong>
+          {g.pricePerDay != null && <> · cca <strong>{g.pricePerDay.toFixed(2).replace('.', ',')} € na deň</strong> <span className="hint">(vrece {g.bagLabel}, s mesačným predplatným)</span></>}
+        </p>
+        <a className="btn" href={orderUrl}>Objednať granule pre psa {dogName}</a>
+      </div>
     </section>
   );
 }

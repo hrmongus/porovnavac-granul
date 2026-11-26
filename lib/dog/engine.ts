@@ -21,6 +21,9 @@ export interface DogAnswers {
   body: Body;
   focus: string[];
   allergies: string[];
+  /** ručne zvolená receptúra a receptúra, pre ktorú platí (ako v konfigurátore) */
+  recipe?: string;
+  recipeFor?: string;
 }
 
 export const BREEDS = engine.BREEDS;

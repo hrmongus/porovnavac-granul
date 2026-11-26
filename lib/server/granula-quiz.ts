@@ -21,22 +21,24 @@ export function configuratorUrl(quizId: string | null | undefined): string {
 }
 
 /** Odpovede presne v tvare konfigurátora (kľúče ANSWERS z kviz.js bez bag/bagKey/plan). */
-export function quizAnswers(dog: DogAnswers) {
+export function quizAnswers(dog: DogAnswers, recipe?: { recipeId?: string; recipeFor?: string }) {
   return {
     dogname: dog.dogname, sex: dog.sex, breed: dog.breed, breedSet: dog.breedSet, kg: dog.kg, years: dog.years,
     months: dog.months, weeks: dog.weeks, activity: dog.activity, neutered: dog.neutered, pregnant: dog.pregnant,
     body: dog.body, focus: dog.focus, allergies: dog.allergies.filter((a) => CONFIGURATOR_ALLERGIES.has(a)),
+    // receptúra z odporúčania (bod 9.1): recipe = odporúčaná, recipeFor = výber enginu
+    ...(recipe?.recipeId ? { recipe: recipe.recipeId, recipeFor: recipe.recipeFor ?? recipe.recipeId } : {}),
   };
 }
 
 /** Pošle odpovede na granula.sk. Vráti id alebo null (chyba nikdy nič nezastaví). */
-export async function postQuiz(dog: DogAnswers): Promise<string | null> {
+export async function postQuiz(dog: DogAnswers, recipe?: { recipeId?: string; recipeFor?: string }): Promise<string | null> {
   const id = randomUUID();
   try {
     const r = await fetch(QUIZ_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, step: 'vysledok', answers: quizAnswers(dog), plan: 'mesiac', utm: UTM, referrer: '', landing: 'analyzer' }),
+      body: JSON.stringify({ id, step: 'vysledok', answers: quizAnswers(dog, recipe), plan: 'mesiac', utm: UTM, referrer: '', landing: 'analyzer' }),
       signal: AbortSignal.timeout(6000),
     });
     if (!r.ok) {
@@ -51,10 +53,12 @@ export async function postQuiz(dog: DogAnswers): Promise<string | null> {
 }
 
 /** Zabezpečí id dotazníka pre analýzu (raz; uloží ho k analýze). */
-export async function ensureQuizId(analysisId: string, dog: DogAnswers | null, existing: string | null): Promise<string | null> {
+export async function ensureQuizId(
+  analysisId: string, dog: DogAnswers | null, existing: string | null, recipe?: { recipeId?: string; recipeFor?: string },
+): Promise<string | null> {
   if (existing) return existing;
   if (!dog?.dogname) return null;
-  const id = await postQuiz(dog);
+  const id = await postQuiz(dog, recipe);
   if (id) await adminClient().from('analyses').update({ granula_quiz_id: id }).eq('id', analysisId).is('granula_quiz_id', null);
   return id;
 }

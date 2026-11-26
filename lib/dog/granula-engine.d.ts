@@ -15,6 +15,8 @@ export interface ComputeResult {
   params: { plans: Record<string, number> };
   derived: Derived;
   winner: { id: string; rule: Rule } | null;
+  second: { id: string } | null;
+  products: { product: EngineProduct; eligible: boolean; reason: string }[];
   product: EngineProduct | null;
   energy: { kcal: number; factor: number; basis: string };
   dose: { grams: number } | null;

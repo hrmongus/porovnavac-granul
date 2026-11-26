@@ -21,7 +21,8 @@ export interface Indicator { key: 'quality' | 'meat' | 'processing' | 'transpare
 
 export type FitLevel = 'vyborne' | 'vyhrady' | 'skor-nie' | 'nie';
 /** Dôvod s odpočtom (cap = strop pri alergii); info = bez odpočtu (napr. chýbajú analytické zložky). */
-export interface FitReason { text: string; points: number; cap?: number; info?: boolean; health?: boolean }
+/** Dôvod odpočtu. fix = krátka veta, čo má krmivo bez tejto výhrady (pre zdôvodnenie odporúčania, bod 9.1). */
+export interface FitReason { text: string; points: number; cap?: number; info?: boolean; health?: boolean; fix?: string }
 export interface Fit { score: number; level: FitLevel; title: string; reasons: FitReason[]; vetNote: boolean }
 
 export const FIT_TITLES: Record<FitLevel, string> = {
@@ -49,6 +50,7 @@ export const ALLERGENS: { id: string; label: string; rx: RegExp }[] = [
 ];
 const POULTRY = new Set(['kuracie', 'morka', 'kacica', 'hus']);
 const SPECIES = ALLERGENS.filter((a) => !['ryza', 'zemiaky', 'psenica', 'kukurica', 'soja', 'vajcia'].includes(a.id));
+const SPECIES_NAME: Record<string, string> = {'kuracie': 'kura', 'hovadzie': 'hovädzie', 'bravcove': 'bravčové', 'morka': 'morka', 'kacica': 'kačica', 'hus': 'hus', 'jahna': 'jahňa', 'jelen': 'jeleň', 'kralik': 'králik', 'ryby': 'ryby'};
 
 const WORDS = (p: number) => (p >= 90 ? 'Výborné' : p >= 70 ? 'Dobré' : p >= 50 ? 'Priemer' : 'Slabé');
 const lower = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
@@ -91,22 +93,22 @@ export function fitForDog(r: AnalysisResult, dog: DogAnswers, product: ProductIn
     const al = ALLERGENS.find((a) => a.id === id);
     if (!al) continue;
     const hit = items.find((it) => al.rx.test(itemText(it)));
-    if (hit) reasons.push({ text: `Obsahuje ${al.label} (${lower(hit.raw)}) – ${name} naň nemusí reagovať dobre.`, points: 80, cap: 20, health: true });
+    if (hit) reasons.push({ text: `Obsahuje ${al.label} (${lower(hit.raw)}) – ${name} naň nemusí reagovať dobre.`, points: 80, cap: 20, health: true, fix: `neobsahuje ${al.label}` });
     else if (POULTRY.has(id)) {
       const poultry = items.find((it) => /hydin|drub|poultry/.test(itemText(it)));
-      if (poultry) reasons.push({ text: `Obsahuje hydinu bez uvedenia druhu (${lower(poultry.raw)}) – ${al.label} sa nedá vylúčiť.`, points: 80, cap: 20, health: true });
+      if (poultry) reasons.push({ text: `Obsahuje hydinu bez uvedenia druhu (${lower(poultry.raw)}) – ${al.label} sa nedá vylúčiť.`, points: 80, cap: 20, health: true, fix: `neobsahuje ${al.label}` });
     }
   }
 
   // Fáza a veľkosť
   if (product) {
     const ps = stageOfProduct(product);
-    if (d.isPuppy && (ps === 'adult' || ps === 'senior')) reasons.push({ text: 'Krmivo nie je určené pre šteňatá v raste.', points: 30 });
-    if (!d.isPuppy && ps === 'puppy') reasons.push({ text: `Krmivo je pre šteňatá, ${name} je ${d.stage === 'senior' ? 'senior' : 'dospelý'}.`, points: 15 });
+    if (d.isPuppy && (ps === 'adult' || ps === 'senior')) reasons.push({ text: 'Krmivo nie je určené pre šteňatá v raste.', points: 30, fix: 'je vhodná pre šteňatá v raste' });
+    if (!d.isPuppy && ps === 'puppy') reasons.push({ text: `Krmivo je pre šteňatá, ${name} je ${d.stage === 'senior' ? 'senior' : 'dospelý'}.`, points: 15, fix: 'je určená pre dospelých psov' });
     const pz = sizeOfProduct(product);
     const dogSmall = d.small;
     if ((pz === 'small' && (d.largeGiant || d.size === 'stredne')) || (pz === 'large' && dogSmall) || (pz === 'medium' && (dogSmall || d.size === 'obrie'))) {
-      reasons.push({ text: `Krmivo je výslovne pre ${pz === 'small' ? 'malé' : pz === 'large' ? 'veľké' : 'stredné'} plemená.`, points: 10 });
+      reasons.push({ text: `Krmivo je výslovne pre ${pz === 'small' ? 'malé' : pz === 'large' ? 'veľké' : 'stredné'} plemená.`, points: 10, fix: 'sedí veľkosťou granule' });
     }
   }
 
@@ -115,28 +117,32 @@ export function fitForDog(r: AnalysisResult, dog: DogAnswers, product: ProductIn
   const lowActivity = dog.activity === 'doma' || d.stage === 'senior';
   const fatRelevant = d.pancreas || d.obese || dog.focus.includes('vaha') || d.active || lowActivity;
   if (a) {
-    if (d.pancreas && a.fat > 18) reasons.push({ text: `Má ${fmt(a.fat)} % tuku. Pri problémoch s pankreasom sa poraď s veterinárom.`, points: 40, health: true });
-    else if (d.pancreas && a.fat > 14) reasons.push({ text: `Má ${fmt(a.fat)} % tuku. Pri problémoch s pankreasom sa poraď s veterinárom.`, points: 30, health: true });
-    if ((d.obese || dog.focus.includes('vaha')) && a.fat >= 16) reasons.push({ text: `Má ${fmt(a.fat)} % tuku – na chudnutie je to veľa.`, points: 20, health: true });
-    if (d.active && a.protein < 24) reasons.push({ text: `Pre aktívneho psa má málo bielkovín (${fmt(a.protein)} %).`, points: 15 });
-    if (d.active && a.fat < 14) reasons.push({ text: `Pre aktívneho psa má málo tuku (${fmt(a.fat)} %).`, points: 10 });
-    if (lowActivity && !d.active && a.fat >= 18) reasons.push({ text: `Má ${fmt(a.fat)} % tuku – pri malom pohybe je to veľa.`, points: 10 });
+    if (d.pancreas && a.fat > 18) reasons.push({ text: `Má ${fmt(a.fat)} % tuku. Pri problémoch s pankreasom sa poraď s veterinárom.`, points: 40, health: true, fix: 'má menej tuku' });
+    else if (d.pancreas && a.fat > 14) reasons.push({ text: `Má ${fmt(a.fat)} % tuku. Pri problémoch s pankreasom sa poraď s veterinárom.`, points: 30, health: true, fix: 'má menej tuku' });
+    if ((d.obese || dog.focus.includes('vaha')) && a.fat >= 16) reasons.push({ text: `Má ${fmt(a.fat)} % tuku – na chudnutie je to veľa.`, points: 20, health: true, fix: 'má menej tuku' });
+    if (d.active && a.protein < 24) reasons.push({ text: `Pre aktívneho psa má málo bielkovín (${fmt(a.protein)} %).`, points: 15, fix: 'má viac bielkovín' });
+    if (d.active && a.fat < 14) reasons.push({ text: `Pre aktívneho psa má málo tuku (${fmt(a.fat)} %).`, points: 10, fix: 'má viac energie z tuku' });
+    if (lowActivity && !d.active && a.fat >= 18) reasons.push({ text: `Má ${fmt(a.fat)} % tuku – pri malom pohybe je to veľa.`, points: 10, fix: 'má primeraný obsah tuku' });
   } else if (fatRelevant) {
     reasons.push({ text: 'Obsah tuku výrobca neuvádza – nevieme posúdiť.', points: 0, info: true });
   }
 
-  // Citlivé trávenie, „nesedí mu každé mäso“
-  if (dog.focus.includes('travenie') || dog.focus.includes('alergia')) {
-    const species = SPECIES.filter((s) => items.some((it) => s.rx.test(itemText(it)))).length;
+  // Citlivé trávenie, „nesedí mu každé mäso“ – rovnaká podmienka ako d.intolerance v engine.js.
+  // Druhy zvierat len z mäsa, vnútorností, múčok a bielkovín (tuky a oleje sa nerátajú – ako „monoproteín“ v engine.js).
+  if (d.intolerance) {
+    const meatItems = items.filter((it) => it.category === 'maso' || it.category === 'zivocisny_vedlajsi_produkt');
+    const species = SPECIES.filter((s) => meatItems.some((it) => s.rx.test(itemText(it))));
+    const list = species.map((s) => SPECIES_NAME[s.id]).join(', ');
+    if (species.length >= 3) reasons.push({ text: `Má ${species.length} druhy mäsa (${list}). Pri citlivom trávení je vhodnejší jeden druh.`, points: 15, health: true, fix: 'má jeden druh mäsa' });
+    else if (species.length === 2) reasons.push({ text: `Má 2 druhy mäsa (${list}). Pri citlivom trávení je vhodnejší jeden druh.`, points: 5, health: true, fix: 'má jeden druh mäsa' });
     const cheapTop5 = items.slice(0, 5).find((it) => /psenic|wheat|kukuric|corn\b|maize|\bsoj|soy/.test(itemText(it)));
-    if (species >= 3) reasons.push({ text: `Obsahuje ${species} druhy živočíšnych surovín – pri citlivom trávení býva lepšie menej.`, points: 15, health: true });
-    if (cheapTop5) reasons.push({ text: `Medzi prvými piatimi zložkami je ${lower(cheapTop5.raw)} – pri citlivom trávení častý problém.`, points: 10, health: true });
+    if (cheapTop5) reasons.push({ text: `Medzi prvými piatimi zložkami je ${lower(cheapTop5.raw)} – pri citlivom trávení častý problém.`, points: 10, health: true, fix: 'nemá pšenicu, kukuricu ani sóju medzi hlavnými zložkami' });
   }
 
   // Kĺby
   if (dog.focus.includes('kby') || d.largeGiant || d.stage === 'senior') {
     const all = deacc(`${items.map((it) => it.raw).join(' ')} ${product?.additives_raw ?? ''} ${product?.analytical_raw ?? ''}`);
-    if (!/glukozamin|glucosamin|glukosamin|chondroitin/.test(all)) reasons.push({ text: 'Neobsahuje glukozamín ani chondroitín na podporu kĺbov.', points: 5 });
+    if (!/glukozamin|glucosamin|glukosamin|chondroitin/.test(all)) reasons.push({ text: 'Neobsahuje glukozamín ani chondroitín na podporu kĺbov.', points: 5, fix: 'obsahuje glukozamín a chondroitín' });
   }
 
   let score = 100 - reasons.reduce((s, x) => s + (x.cap ? 0 : x.points), 0);

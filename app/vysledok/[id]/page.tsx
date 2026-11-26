@@ -32,7 +32,7 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
 
   const r = data.result as StoredResult;
   // odkaz na konfigurátor na granula.sk s rovnakými odpoveďami (bod 10); pri chybe len začiatok konfigurátora
-  const quizId = await ensureQuizId(data.id, parseDog(data.dog), data.granula_quiz_id);
+  const quizId = await ensureQuizId(data.id, parseDog(data.dog), data.granula_quiz_id, r.granula);
   const date = new Date(data.created_at).toLocaleDateString('sk-SK');
   return (
     <div className="stack">
