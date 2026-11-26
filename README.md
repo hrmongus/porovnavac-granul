@@ -12,8 +12,8 @@ Projekt: `https://mqgukyfttafavlnlaoyj.supabase.co`
 4. Spusti postupne `supabase/data/granule_2026-11-19_cast1.sql`, `_cast2.sql`, `_cast3.sql`
    (granule zo slovenského trhu; dajú sa spúšťať aj opakovane)
 5. Spusti `supabase/migrations/20261126010000_ingredient_scores.sql`
-6. Spusti `supabase/data/granula_produkty_2026-11-26.sql` (receptúry Granula)
-7. Spusti `supabase/migrations/20261126040000_methodology_2_0.sql` a potom `supabase/data/zlozky_a_skore_v2.sql`
+6. Spusti `supabase/migrations/20261126040000_methodology_2_0.sql` (pridá metodiku 2.0 – súbor Granuly na ňu odkazuje)
+7. Spusti `supabase/data/granula_produkty_2026-11-26.sql` (receptúry Granula) a potom `supabase/data/zlozky_a_skore_v2.sql`
    (227 zložiek, 3 511 zápisov, skóre a ukazovatele 1 784 produktov podľa metodiky 2.0)
 8. `supabase/seed.sql` s ukážkovými dátami už netreba
 9. Skopíruj `.env.example` do `.env`
