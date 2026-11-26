@@ -43,6 +43,12 @@ export default function PrivacyPage() {
           <strong>Ochrana proti spamu:</strong> z IP adresy ukladáme iba jednosmerný odtlačok (nie samotnú adresu), najviac 24 hodín.
           Formuláre chráni služba Cloudflare Turnstile.
         </li>
+        <li>
+          <strong>Odpovede o psovi</strong> (meno psa, plemeno, hmotnosť, vek, aktivita, zameranie, alergie – bez tvojho mena
+          a e-mailu) pri zobrazení výsledku odovzdáme konfigurátoru Granule na mieru na granula.sk, ktorý prevádzkuje ten istý
+          prevádzkovateľ ({OPERATOR.name}). Vďaka tomu sa ti po kliknutí na odporúčanie otvorí rovno výsledok a nemusíš otázky
+          vypĺňať znova.
+        </li>
       </ul>
 
       <h2>Ako dlho údaje uchovávame</h2>

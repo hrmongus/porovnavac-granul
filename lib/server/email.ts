@@ -2,7 +2,6 @@ import 'server-only';
 import { chipText, sensitivityNote, type StoredResult } from '@/lib/result';
 import { colorOf } from '@/lib/scoring/rules';
 import { signToken } from './tokens';
-import { GRANULA_CTA } from '@/lib/v2/granula';
 
 // Farby podľa docs/DIZAJN.md (semafor hodnotenia)
 const BG: Record<string, string> = {
@@ -28,9 +27,10 @@ interface Args {
   leadId: string;
   consentGiven: boolean;
   result: StoredResult;
+  orderUrl: string; // konfigurátor na granula.sk (s ?kviz=<id>, ak sa podarilo uložiť odpovede)
 }
 
-export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, result }: Omit<Args, 'to'>) {
+export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, result, orderUrl }: Omit<Args, 'to'>) {
   const link = `${appUrl()}/vysledok/${analysisId}`;
   const rows = result.items.map((it) => {
     const note = sensitivityNote(it.sensitivity, it.explanation);
@@ -81,7 +81,7 @@ export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, re
         <tr><td style="padding:4px">Dávka denne</td><td style="padding:4px">${result.dose ? `cca ${result.dose.grams} g` : '–'}</td><td style="padding:4px">cca ${g.grams} g</td></tr>
       </table>
       ${g.pricePerDay != null ? `<p style="margin:0 0 10px;font-size:13px">Cca ${g.pricePerDay.toFixed(2).replace('.', ',')} € na deň (vrece ${esc(g.bagLabel ?? '')}, s mesačným predplatným).</p>` : ''}
-      <a href="${GRANULA_CTA}" style="display:inline-block;background:#FF6900;color:#000;border:1.6px solid #000;padding:12px 20px;font-weight:900;text-transform:uppercase;text-decoration:none">Objednať granule pre psa ${dn} →</a>`}
+      <a href="${esc(orderUrl)}" style="display:inline-block;background:#FF6900;color:#000;border:1.6px solid #000;padding:12px 20px;font-weight:900;text-transform:uppercase;text-decoration:none">Objednať granule pre psa ${dn} →</a>`}
     </div>`;
 
   const consentBox = consentGiven

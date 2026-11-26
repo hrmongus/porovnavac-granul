@@ -1,6 +1,8 @@
 import { adminClient } from '@/lib/server/admin';
 import { jsonError, rateLimit, verifyTurnstile } from '@/lib/server/guard';
 import { sendResultEmail } from '@/lib/server/email';
+import { configuratorUrl, ensureQuizId } from '@/lib/server/granula-quiz';
+import { parseDog } from '@/lib/dog/validate';
 import { CONSENT_MARKETING_TEXT, RESULT_ONLY_TEXT } from '@/lib/consent';
 import type { StoredResult } from '@/lib/result';
 
@@ -28,7 +30,7 @@ export async function POST(req: Request) {
   if (!(await rateLimit(req, 'lead', 10))) return jsonError('Príliš veľa požiadaviek. Skús to o chvíľu.', 429);
 
   const sb = adminClient();
-  const { data: analysis } = await sb.from('analyses').select('id, result, lead_id, dog').eq('id', analysisId).single();
+  const { data: analysis } = await sb.from('analyses').select('id, result, lead_id, dog, granula_quiz_id').eq('id', analysisId).single();
   if (!analysis) return jsonError('Analýza neexistuje.', 404);
   const dog = analysis.dog as { dogname?: string; name?: string; breed?: string | null; years?: string | number; months?: string | number } | null;
   const dogName = dog?.dogname ?? dog?.name ?? null;
@@ -67,6 +69,8 @@ export async function POST(req: Request) {
   }
 
   await sb.from('analyses').update({ lead_id: leadId }).eq('id', analysisId);
+  // Odpovede o psovi (bez e-mailu) pre konfigurátor na granula.sk – odkaz ?kviz=<id> v tlačidle aj v e-maile
+  const quizId = await ensureQuizId(analysisId, parseDog(analysis.dog), analysis.granula_quiz_id);
 
   const sent = await sendResultEmail({
     to: email,
@@ -75,6 +79,7 @@ export async function POST(req: Request) {
     leadId,
     consentGiven,
     result: analysis.result as StoredResult,
+    orderUrl: configuratorUrl(quizId),
   });
   return Response.json({ ok: true, emailSent: sent });
 }

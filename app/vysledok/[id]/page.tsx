@@ -5,6 +5,8 @@ import { adminClient } from '@/lib/server/admin';
 import type { StoredResult } from '@/lib/result';
 import { Findings, GranulaBlock, FitBox, IngredientList, Indicators, ScoreBox } from '@/app/components/ResultTable';
 import EmailGate from '@/app/components/EmailGate';
+import { configuratorUrl, ensureQuizId } from '@/lib/server/granula-quiz';
+import { parseDog } from '@/lib/dog/validate';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Výsledok analýzy', robots: { index: false, follow: false } };
@@ -12,7 +14,7 @@ export const metadata: Metadata = { title: 'Výsledok analýzy', robots: { index
 export default async function ResultPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
-  const { data } = await adminClient().from('analyses').select('id, result, lead_id, dog, created_at').eq('id', id).maybeSingle();
+  const { data } = await adminClient().from('analyses').select('id, result, lead_id, dog, created_at, granula_quiz_id').eq('id', id).maybeSingle();
   if (!data) notFound();
   const dog = data.dog as { dogname?: string; name?: string; sex?: string } | null;
   const dogName = dog?.dogname || dog?.name || 'tvoj pes';
@@ -29,6 +31,8 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
   }
 
   const r = data.result as StoredResult;
+  // odkaz na konfigurátor na granula.sk s rovnakými odpoveďami (bod 10); pri chybe len začiatok konfigurátora
+  const quizId = await ensureQuizId(data.id, parseDog(data.dog), data.granula_quiz_id);
   const date = new Date(data.created_at).toLocaleDateString('sk-SK');
   return (
     <div className="stack">
@@ -43,7 +47,7 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
         {r.product && <> · zloženie podľa etikety, zdroj: {r.product.source ?? 'neuvedený'}</>} ·{' '}
         <Link href={`/nahlasit-chybu?analyza=${data.id}`}>Nahlásiť chybu</Link> · <Link href="/">Vyhodnotiť ďalšie granule</Link>
       </p>
-      <GranulaBlock r={r} dogName={dogName} female={female} />
+      <GranulaBlock r={r} dogName={dogName} female={female} orderUrl={configuratorUrl(quizId)} />
     </div>
   );
 }

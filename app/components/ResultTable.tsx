@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { COLOR_LEGEND, COLOR_NAME, chipText, sensitivityNote, type StoredResult } from '@/lib/result';
 import { colorOf } from '@/lib/scoring/rules';
-import { GRANULA_CTA } from '@/lib/v2/granula';
 
 
 export function ScoreBox({ r }: { r: StoredResult }) {
@@ -143,7 +142,7 @@ export function Legend() {
 }
 
 /** Bod 9: odporúčanie Granula – vizuálne oddelené, s označením prevádzkovateľa. */
-export function GranulaBlock({ r, dogName, female }: { r: StoredResult; dogName: string; female: boolean }) {
+export function GranulaBlock({ r, dogName, female, orderUrl }: { r: StoredResult; dogName: string; female: boolean; orderUrl: string }) {
   const g = r.granula;
   if (!g) return null;
   return (
@@ -178,7 +177,7 @@ export function GranulaBlock({ r, dogName, female }: { r: StoredResult; dogName:
             {dogName} by {female ? 'mala' : 'mal'} zjesť cca <strong>{g.grams} g denne</strong>
             {g.pricePerDay != null && <> · cca <strong>{g.pricePerDay.toFixed(2).replace('.', ',')} € na deň</strong> <span className="hint">(vrece {g.bagLabel}, s mesačným predplatným)</span></>}
           </p>
-          <a className="btn" href={GRANULA_CTA}>Objednať granule pre psa {dogName}</a>
+          <a className="btn" href={orderUrl}>Objednať granule pre psa {dogName}</a>
         </div>
       )}
     </section>

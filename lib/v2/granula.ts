@@ -21,7 +21,6 @@ export interface GranulaPick {
 }
 
 export const GRANULA_ORIGIN = 'https://www.granula.sk/';
-export const GRANULA_CTA = 'https://www.granula.sk/granule-na-mieru.html?utm_source=analyzer&utm_medium=web&utm_campaign=vysledok';
 
 export interface GranulaDbProduct extends ProductInfo { composition_raw: string }
 
