@@ -155,12 +155,16 @@ Voliteľne opačným smerom: konfigurátor na granula.sk môže vo výsledku pon
 
 Odporúča sa **iba receptúra Granula** a **iba taká, ktorá sa psovi hodí na 100/100** (bod 5).
 
-1. **Krmivo používateľa sa psovi hodí na 100/100** → **žiadne odporúčanie** (ani Granula). Text: „Tieto granule sa Erikovi hodia na 100 %.“
+1. **Krmivo používateľa sa psovi hodí na 100/100** → **žiadne odporúčanie** (ani Granula), len riadok v pätičke (bod 5). Text: „Tieto granule sa Erikovi hodia na 100 %.“
    Ak je to receptúra Granula, pridaj tlačidlo „Objednať granule pre psa Erik →“ (kviz s `recipe` = táto receptúra).
 2. **Hodí sa menej ako na 100** → vyber receptúru Granula, ktorá sa hodí na 100/100, v tomto poradí:
    receptúra z `compute()` (engine.js) → druhá možnosť (`second`) → ostatné vhodné receptúry v poradí katalógu.
    Prvá, ktorá má „hodí sa“ = 100, sa odporučí. Dávka, cena a odkaz (kviz s `recipe` = vybraná, `recipeFor` = z engine) sú pre ňu.
 3. **Žiadna receptúra Granula nemá 100/100** → blok s odporúčaním sa nezobrazí vôbec.
+5. **Vždy, na každom výsledku (aj v prípadoch 1 a 3), úplne dole** – nenápadný riadok oddelený čiarou, bez porovnania a bez tvrdení o kvalite:
+   „Granula – granule vyskladané na mieru pre každého psa. **Pozri, čo by sme vybrali pre psa Lol →**“
+   Odkaz na konfigurátor s `?kviz=<uuid>` (bod 10), `utm_content=paticka`. Ak sa zobrazil blok s odporúčaním, tento riadok sa nezobrazí (nech nie je odkaz dvakrát).
+   Rovnaký riadok na konci e-mailu s výsledkom.
 4. Pri odporúčaní tabuľka krmivo používateľa vs. odporúčaná receptúra + jedna veta prečo (dôvody odpočtov pri krmive používateľa,
    ktoré odporúčaná receptúra nemá). Slovo „lepšie“ iba keď je receptúra Granula vyššie aj v skóre zloženia.
 
