@@ -90,7 +90,7 @@ Rozloženie trhu: medián 49, 90+ má 67 produktov, pod 50 je 1 113 z 1 784. Gra
 
 ## 8. Fronta na doplnenie (neznáme zložky a chýbajúce krmivá)
 
-Databázová časť je hotová (migrácia `20261126050000_na_doplnenie.sql`):
+Databázová časť je hotová (migrácia `20261126060000_na_doplnenie.sql`):
 - `analyses.product_hint` – nepovinné „Aké granule to sú?“ pri fotke/texte,
 - `search_misses` – neúspešné hľadania v zozname (iba text a čas, RLS, zápis len cez server),
 - pohľady `na_doplnenie_zlozky` a `na_doplnenie_krmiva` (len service_role). Zložka z fronty zmizne sama, keď pre ňu pribudne alias.

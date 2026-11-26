@@ -105,11 +105,20 @@ export function verdictOf(score: number): string {
     : score >= 50 ? 'Slabšia kvalita zloženia' : 'Nekvalitné zloženie';
 }
 
-/** Ako Python 3.12+ sum() pre floaty (Neumaierova kompenzovaná suma) – kvôli zhode na poslednom bite. */
+/**
+ * Ako Python 3.12+ sum() – kvôli zhode na poslednom bite:
+ * celé čísla na začiatku sa sčítajú presne, prvé necelé sa pripočíta obyčajne
+ * a zvyšok Neumaierovou kompenzovanou sumou (CPython builtin_sum).
+ */
 function pySum(xs: number[]): number {
-  let sum = 0;
+  let i = 0;
+  let acc = 0;
+  while (i < xs.length && Number.isInteger(xs[i])) acc += xs[i++];
+  if (i === xs.length) return acc;
+  let sum = acc + xs[i++];
   let c = 0;
-  for (const x of xs) {
+  for (; i < xs.length; i++) {
+    const x = xs[i];
     const t = sum + x;
     if (Math.abs(sum) >= Math.abs(x)) c += sum - t + x;
     else c += x - t + sum;
