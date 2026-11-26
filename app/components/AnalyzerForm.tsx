@@ -53,7 +53,7 @@ export default function AnalyzerForm() {
   async function onAnalyze(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (text.trim().length < 3) return setError('Vložte text zloženia.');
+    if (text.trim().length < 3) return setError('Vlož text zloženia.');
     setBusy('analyza');
     try {
       const r = await fetch('/api/analyza', {
@@ -87,11 +87,11 @@ export default function AnalyzerForm() {
       {mode === 'foto' && (
         <div>
           <label htmlFor="foto">
-            Odfoťte zloženie na obale <span className="hint">(časť „Zloženie“, ostro a celé)</span>
+            Odfoť zloženie na obale <span className="hint">(časť „Zloženie“, ostro a celé)</span>
           </label>
           <input id="foto" type="file" accept="image/*" capture="environment" onChange={onPhoto} disabled={busy !== null || waitingForCheck} />
           <p className="hint">
-            AI z fotky iba prepíše text zloženia, nič nehodnotí. Fotku neukladáme. Rozpoznaný text môžete pred analýzou opraviť.
+            AI z fotky iba prepíše text zloženia, nič nehodnotí. Fotku neukladáme. Rozpoznaný text môžeš pred analýzou opraviť.
           </p>
           {busy === 'prepis' && <p role="status">Prepisujem text z fotky…</p>}
         </div>
@@ -100,7 +100,7 @@ export default function AnalyzerForm() {
       {(mode === 'text' || text) && (
         <div>
           <label htmlFor="zlozenie">
-            {fromPhoto ? 'Rozpoznaný text – skontrolujte a prípadne opravte' : 'Text zloženia'}
+            {fromPhoto ? 'Rozpoznaný text – skontroluj ho a prípadne oprav' : 'Text zloženia'}
           </label>
           <textarea
             id="zlozenie"

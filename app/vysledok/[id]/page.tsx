@@ -22,11 +22,11 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
 
   return (
     <div className="stack">
-      <h1>Výsledok analýzy zloženia</h1>
+      <h1>Výsledok <span className="hl">analýzy</span></h1>
       <p className="hint">Analýza z {date} · metodika verzia {r.methodology_version}</p>
       <ScoreBox r={r} />
       {r.locked && <EmailGate analysisId={data.id} />}
-      <h2>Zložky v poradí z etikety</h2>
+      <h2>Zložky <span className="hl">v poradí z etikety</span></h2>
       <IngredientList r={r} />
       {r.unknown_items.length > 0 && (
         <p className="hint">

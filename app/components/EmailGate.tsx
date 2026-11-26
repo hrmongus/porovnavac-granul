@@ -41,16 +41,16 @@ export default function EmailGate({ analysisId }: { analysisId: string }) {
     return (
       <div className="notice" role="status">
         {done.emailSent
-          ? `Celý rozbor sme poslali na ${email}. Nájdete ho aj nižšie.`
-          : 'Celý rozbor je zobrazený nižšie. E-mail sa momentálne nepodarilo odoslať, odkaz na túto stránku si uložte.'}
+          ? `Celý rozbor sme poslali na ${email}. Nájdeš ho aj nižšie.`
+          : 'Celý rozbor je zobrazený nižšie. E-mail sa momentálne nepodarilo odoslať, odkaz na túto stránku si ulož.'}
       </div>
     );
   }
 
   return (
     <form className="card stack" onSubmit={submit} aria-labelledby="gate-title">
-      <h2 id="gate-title" style={{ marginTop: 0 }}>Celý rozbor na e-mail</h2>
-      <p>Pošleme vám vysvetlenie všetkých zložiek, porovnanie s trhom a trvalý odkaz na výsledok.</p>
+      <h3 id="gate-title">Celý rozbor <span className="hl">na e-mail</span></h3>
+      <p>Pošleme ti vysvetlenie všetkých zložiek, porovnanie s trhom a trvalý odkaz na výsledok.</p>
       <div>
         <label htmlFor="email">E-mail</label>
         <input id="email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -68,7 +68,7 @@ export default function EmailGate({ analysisId }: { analysisId: string }) {
       </p>
       <Turnstile onToken={onToken} />
       {error && <p className="error" role="alert">{error}</p>}
-      <button className="btn" type="submit" disabled={busy || (turnstileEnabled && !token)}>
+      <button className="btn kobalt" type="submit" disabled={busy || (turnstileEnabled && !token)}>
         {busy ? 'Odosielam…' : 'Poslať celý rozbor'}
       </button>
     </form>

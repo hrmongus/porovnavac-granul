@@ -1,22 +1,23 @@
 import Link from 'next/link';
-import { COLOR_LABEL, COLOR_LEGEND, sensitivityNote, type ResultView } from '@/lib/result';
+import { COLOR_LEGEND, COLOR_NAME, chipText, sensitivityNote, type ResultView } from '@/lib/result';
+import { colorOf } from '@/lib/scoring/rules';
 
 const PLACEHOLDER = 'Vysvetlenie tejto zložky, prečo ju výrobca používa a na čo si pri nej dať pozor, je súčasťou celého rozboru.';
 
 export function ScoreBox({ r }: { r: ResultView }) {
   if (r.score === null) {
     return (
-      <div className="card">
+      <div className="card shadow">
         <p className="verdict">Skóre sa nedalo vypočítať</p>
         <p>Žiadnu zo zložiek zatiaľ nepoznáme. Doplníme ich do databázy.</p>
       </div>
     );
   }
-  const color = r.score >= 90 ? 'zelena' : r.score >= 70 ? 'zlta' : r.score >= 50 ? 'oranzova' : 'cervena';
+  const color = colorOf(r.score);
   return (
-    <div className="card score-box">
-      <div className={`score-num c-${color}`} aria-hidden="true">
-        {r.score}<small>zo 100</small>
+    <div className="card shadow score-box">
+      <div className={`score-num c-${color}`}>
+        {r.score}<small>zo 100 · {COLOR_NAME[color]}</small>
       </div>
       <div>
         <p className="verdict">{r.verdict} {r.score}/100</p>
@@ -35,9 +36,8 @@ export function IngredientList({ r }: { r: ResultView }) {
       {r.items.map((it) => {
         const note = sensitivityNote(it.sensitivity, it.explanation);
         return (
-          <li key={it.position} className={`ing c-${it.color}`} style={{ background: 'var(--card)' }}>
-            <span className="bar" aria-hidden="true" />
-            <div className="body" style={{ color: 'var(--text)' }}>
+          <li key={it.position} className="ing">
+            <div>
               <div className="raw"><span className="pos">{it.position}.</span>{it.raw}</div>
               {it.name && <div className="name">{it.name}</div>}
               {it.explanation !== null ? (
@@ -45,14 +45,11 @@ export function IngredientList({ r }: { r: ResultView }) {
               ) : (
                 <>
                   <div className="expl blurred" aria-hidden="true">{PLACEHOLDER}</div>
-                  <div className="gate-cta">Celý rozbor vám pošleme na e-mail.</div>
+                  <div className="gate-cta">Celý rozbor ti pošleme na e-mail.</div>
                 </>
               )}
             </div>
-            <div className={`badge c-${it.color}`}>
-              {it.score === null ? '–' : it.score}
-              <span>{COLOR_LABEL[it.color]}</span>
-            </div>
+            <span className={`chip c-${it.color}`}>{chipText(it.color, it.score)}</span>
           </li>
         );
       })}
@@ -63,11 +60,11 @@ export function IngredientList({ r }: { r: ResultView }) {
 export function Legend() {
   return (
     <div className="card">
-      <h2 style={{ marginTop: 0 }}>Legenda</h2>
+      <h3>Legenda</h3>
       <ul className="legend">
         {COLOR_LEGEND.map((l) => (
           <li key={l.color}>
-            <span className={`chip c-${l.color}`}>{l.range} {COLOR_LABEL[l.color]}</span>
+            <span className={`chip c-${l.color}`}>{COLOR_NAME[l.color]} · {l.range}</span>
             <span>{l.text}</span>
           </li>
         ))}

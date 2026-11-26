@@ -9,13 +9,18 @@ export interface StoredResult extends AnalysisResult {
 
 export const FREE_EXPLANATIONS = 3;
 
-export const COLOR_LABEL: Record<Color, string> = {
-  zelena: 'výborná',
-  zlta: 'kvalitná',
-  oranzova: 'spozornieť',
-  cervena: 'nevhodná',
-  seda: 'neznáma',
+export const COLOR_NAME: Record<Color, string> = {
+  zelena: 'Zelená',
+  zlta: 'Žltá',
+  oranzova: 'Oranžová',
+  cervena: 'Červená',
+  seda: 'Šedá',
 };
+
+/** Text štítku – farba nikdy nie je jediná informácia, napr. „Zelená · 100“. */
+export function chipText(color: Color, score: number | null): string {
+  return score === null ? `${COLOR_NAME[color]} · neznáma` : `${COLOR_NAME[color]} · ${score}`;
+}
 
 export const COLOR_LEGEND: { color: Color; range: string; text: string }[] = [
   { color: 'zelena', range: '90–100', text: 'Čistá, konkrétne pomenovaná a výživovo hodnotná zložka' },

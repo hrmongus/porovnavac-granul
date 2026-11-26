@@ -1,13 +1,18 @@
 import 'server-only';
-import { COLOR_LABEL, sensitivityNote, type StoredResult } from '@/lib/result';
+import { chipText, sensitivityNote, type StoredResult } from '@/lib/result';
+import { colorOf } from '@/lib/scoring/rules';
 import { signToken } from './tokens';
 
-const HEX: Record<string, string> = {
-  zelena: '#1d7a46', zlta: '#9a7b00', oranzova: '#b85c00', cervena: '#b3261e', seda: '#6b6b6b',
-};
+// Farby podľa docs/DIZAJN.md (semafor hodnotenia)
 const BG: Record<string, string> = {
-  zelena: '#e3f3ea', zlta: '#fbf3d0', oranzova: '#fde8d4', cervena: '#fbe1df', seda: '#ececec',
+  zelena: '#2E9D57', zlta: '#F5C518', oranzova: '#E8892B', cervena: '#C8322B', seda: '#BDB6AE',
 };
+const FG: Record<string, string> = {
+  zelena: '#ffffff', zlta: '#000000', oranzova: '#000000', cervena: '#ffffff', seda: '#000000',
+};
+const FONT = "Montserrat,'Proxima Nova',Arial,Helvetica,sans-serif";
+const chip = (color: string, text: string) =>
+  `<span style="display:inline-block;padding:3px 8px;border:1.6px solid #000;background:${BG[color]};color:${FG[color]};font-weight:900;font-size:12px;text-transform:uppercase;white-space:nowrap">${text}</span>`;
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
@@ -27,40 +32,40 @@ interface Args {
 export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, result }: Omit<Args, 'to'>) {
   const link = `${appUrl()}/vysledok/${analysisId}`;
   const rows = result.items.map((it) => {
-    const label = it.score === null ? 'neznáma' : `${it.score} – ${COLOR_LABEL[it.color]}`;
     const note = sensitivityNote(it.sensitivity, it.explanation);
     return `<tr>
-      <td style="padding:8px;border-bottom:1px solid #ddd;vertical-align:top;color:#555">${it.position}.</td>
-      <td style="padding:8px;border-bottom:1px solid #ddd;vertical-align:top">
-        <strong>${esc(it.raw)}</strong>${it.name ? `<br><span style="color:#555">${esc(it.name)}</span>` : ''}
-        <div style="margin-top:4px;color:#333">${esc(it.explanation)}${note ? ` ${esc(note)}` : ''}</div>
+      <td style="padding:10px 8px;border-bottom:1.6px solid #000;vertical-align:top;font-weight:900">${it.position}.</td>
+      <td style="padding:10px 8px;border-bottom:1.6px solid #000;vertical-align:top">
+        <strong>${esc(it.raw)}</strong>${it.name ? `<br><span style="color:#3d3d3d;font-size:13px">${esc(it.name)}</span>` : ''}
+        <div style="margin-top:4px">${esc(it.explanation)}${note ? ` ${esc(note)}` : ''}</div>
       </td>
-      <td style="padding:8px;border-bottom:1px solid #ddd;vertical-align:top;white-space:nowrap">
-        <span style="display:inline-block;padding:2px 8px;border-radius:4px;background:${BG[it.color]};color:${HEX[it.color]};font-weight:bold">${label}</span>
-      </td></tr>`;
+      <td style="padding:10px 8px;border-bottom:1.6px solid #000;vertical-align:top;text-align:right">${chip(it.color, esc(chipText(it.color, it.score)))}</td></tr>`;
   }).join('');
 
   const scoreLine = result.score === null
     ? 'Skóre sa nedalo vypočítať – žiadnu zložku zatiaľ nepoznáme.'
-    : `${esc(result.verdict ?? '')} ${result.score}/100`;
+    : `${chip(colorOf(result.score), `${result.score}/100`)}&nbsp; ${esc(result.verdict ?? '')}`;
   const market = result.percentile === null ? ''
     : `<p>Porovnanie s trhom: lepšie ako <strong>${result.percentile} %</strong> z ${result.market_count} granúl na slovenskom trhu (zber 2026-11).</p>`;
   const caps = result.caps.length ? `<p style="color:#555">Uplatnené obmedzenia: ${result.caps.map(esc).join('; ')}.</p>` : '';
   const consentBox = consentGiven
-    ? `<p style="font-size:12px;color:#777">Novinky od Granuly už nechcete dostávať? <a href="${appUrl()}/suhlas?akcia=odvolat&t=${signToken('revoke', leadId)}">Odvolať súhlas</a>.</p>`
-    : `<p style="font-size:13px;color:#555">Ak chcete od Granuly dostávať aj novinky a ponuky, môžete súhlas potvrdiť tu: <a href="${appUrl()}/suhlas?akcia=potvrdit&t=${signToken('consent', leadId)}">Potvrdiť súhlas</a>. Bez neho vám iné správy neposielame.</p>`;
+    ? `<p style="font-size:12px;color:#3d3d3d">Novinky od Granuly už nechceš dostávať? <a href="${appUrl()}/suhlas?akcia=odvolat&t=${signToken('revoke', leadId)}">Odvolať súhlas</a>.</p>`
+    : `<p style="font-size:13px;color:#3d3d3d">Ak chceš od Granuly dostávať aj novinky a ponuky, súhlas môžeš potvrdiť tu: <a style="color:#0047BB" href="${appUrl()}/suhlas?akcia=potvrdit&t=${signToken('consent', leadId)}">Potvrdiť súhlas</a>. Bez neho ti iné správy neposielame.</p>`;
 
-  const html = `<!doctype html><html lang="sk"><body style="margin:0;background:#f5f5f2;font-family:Arial,Helvetica,sans-serif;color:#222">
-  <div style="max-width:640px;margin:0 auto;background:#fff;padding:24px">
-    <h1 style="font-size:20px;margin:0 0 4px">Rozbor zloženia${dogName ? ` pre ${esc(dogName)}` : ''}</h1>
-    <p style="font-size:26px;font-weight:bold;margin:12px 0">${scoreLine}</p>
+  const html = `<!doctype html><html lang="sk"><body style="margin:0;background:#F4EBE2;font-family:${FONT};color:#000;line-height:1.5">
+  <div style="max-width:640px;margin:0 auto;padding:24px 16px">
+    <div style="background:#FFF7EE;border:1.6px solid #000;padding:20px">
+    <h1 style="font-size:24px;font-weight:900;text-transform:uppercase;line-height:1.05;margin:0 0 8px">Rozbor zloženia${dogName ? ` pre <span style="color:#0047BB">${esc(dogName)}</span>` : ''}</h1>
+    <p style="font-size:22px;font-weight:900;text-transform:uppercase;margin:14px 0">${scoreLine}</p>
     ${market}${caps}
-    <p><a href="${link}">Trvalý odkaz na tento rozbor</a></p>
-    <table style="width:100%;border-collapse:collapse;font-size:14px">${rows}</table>
-    <p style="font-size:13px;color:#555;margin-top:16px">Hodnotíme iba text zloženia podľa verejnej <a href="${appUrl()}/metodika">metodiky</a> (verzia ${esc(result.methodology_version)}). Farba je vždy doplnená číslom a slovom.</p>
-    <div style="margin-top:24px;padding:16px;border:1px solid #ddd;background:#fafafa">
-      <p style="margin:0 0 6px;font-size:12px;color:#777;text-transform:uppercase">Od prevádzkovateľa: Granula</p>
-      <p style="margin:0">Analyzér prevádzkuje Granula. Hodnotenie je pre všetky krmivá rovnaké vrátane našich. Viac na <a href="https://granula.sk">granula.sk</a>.</p>
+    <p style="margin:18px 0"><a href="${link}" style="display:inline-block;background:#0047BB;color:#F4EBE2;border:1.6px solid #0047BB;padding:12px 20px;font-weight:900;text-transform:uppercase;text-decoration:none">Otvoriť rozbor →</a></p>
+    <table style="width:100%;border-collapse:collapse;font-size:14px;border-top:1.6px solid #000">${rows}</table>
+    <p style="font-size:13px;color:#3d3d3d;margin-top:16px">Hodnotíme iba text zloženia podľa verejnej <a style="color:#0047BB" href="${appUrl()}/metodika">metodiky</a> (verzia ${esc(result.methodology_version)}). Farba je vždy doplnená textom a číslom.</p>
+    </div>
+    <div style="margin-top:20px;padding:16px;border:1.6px solid #000;background:#FFF7EE">
+      <p style="margin:0 0 8px"><span style="display:inline-block;background:#FF6900;color:#000;font-weight:900;font-style:italic;padding:4px 9px">GRANULA!</span></p>
+      <p style="margin:0 0 6px;font-size:12px;font-weight:900;text-transform:uppercase">Od prevádzkovateľa: Granula</p>
+      <p style="margin:0">Analyzér prevádzkuje Granula. Hodnotenie je pre všetky krmivá rovnaké vrátane našich. Viac na <a style="color:#0047BB" href="https://granula.sk">granula.sk</a>.</p>
     </div>
     ${consentBox}
   </div></body></html>`;
@@ -71,7 +76,7 @@ export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, re
     result.percentile === null ? '' : `Lepšie ako ${result.percentile} % granúl na slovenskom trhu.`,
     `Trvalý odkaz: ${link}`,
     '',
-    ...result.items.map((it) => `${it.position}. ${it.raw} – ${it.score === null ? 'neznáma' : `${it.score} (${COLOR_LABEL[it.color]})`}\n   ${it.explanation}`),
+    ...result.items.map((it) => `${it.position}. ${it.raw} – ${chipText(it.color, it.score)}\n   ${it.explanation}`),
     '',
     'Od prevádzkovateľa: Granula – https://granula.sk',
   ].join('\n');

@@ -4,4 +4,4 @@ export const CONSENT_MARKETING_TEXT =
   'Súhlas môžem kedykoľvek odvolať odkazom v e-maile.';
 
 export const RESULT_ONLY_TEXT =
-  'E-mail použijeme na zaslanie tohto rozboru. Bez súhlasu vám nebudeme posielať iné správy.';
+  'E-mail použijeme na zaslanie tohto rozboru. Bez súhlasu ti nebudeme posielať iné správy.';

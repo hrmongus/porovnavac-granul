@@ -11,9 +11,9 @@ export default async function ConsentPage({ searchParams }: { searchParams: Prom
     <div className="stack">
       <h1>{action === 'potvrdit' ? 'Potvrdenie súhlasu' : 'Odvolanie súhlasu'}</h1>
       {action === 'potvrdit' ? (
-        <p>Potvrdením udeľujete tento súhlas: „{CONSENT_MARKETING_TEXT}“</p>
+        <p>Potvrdením udeľuješ tento súhlas: „{CONSENT_MARKETING_TEXT}“</p>
       ) : (
-        <p>Po odvolaní vám už nebudeme posielať novinky ani ponuky.</p>
+        <p>Po odvolaní ti už nebudeme posielať novinky ani ponuky.</p>
       )}
       <ConsentAction action={action} token={t ?? ''} />
     </div>

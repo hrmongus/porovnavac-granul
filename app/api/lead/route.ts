@@ -20,11 +20,11 @@ export async function POST(req: Request) {
   const consent = body.consentMarketing === true;
 
   if (!analysisId) return jsonError('Chýba analýza.');
-  if (!EMAIL_RX.test(email) || email.length > 320) return jsonError('Zadajte platný e-mail.');
+  if (!EMAIL_RX.test(email) || email.length > 320) return jsonError('Zadaj platný e-mail.');
   if (!(await verifyTurnstile(body.turnstileToken as string | undefined, req))) {
-    return jsonError('Overenie proti spamu zlyhalo. Obnovte stránku a skúste to znova.', 403);
+    return jsonError('Overenie proti spamu zlyhalo. Obnov stránku a skús to znova.', 403);
   }
-  if (!(await rateLimit(req, 'lead', 10))) return jsonError('Príliš veľa požiadaviek. Skúste to o chvíľu.', 429);
+  if (!(await rateLimit(req, 'lead', 10))) return jsonError('Príliš veľa požiadaviek. Skús to o chvíľu.', 429);
 
   const sb = adminClient();
   const { data: analysis } = await sb.from('analyses').select('id, result, lead_id').eq('id', analysisId).single();
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
     }).select('id').single();
     if (error || !created) {
       console.error('leads insert', error?.message);
-      return jsonError('E-mail sa nepodarilo uložiť. Skúste to znova.', 500);
+      return jsonError('E-mail sa nepodarilo uložiť. Skús to znova.', 500);
     }
     leadId = created.id;
   }

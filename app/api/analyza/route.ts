@@ -15,19 +15,19 @@ export async function POST(req: Request) {
   }
   const text = typeof body.text === 'string' ? body.text.trim() : '';
   const inputType = body.inputType === 'foto' ? 'foto' : 'text';
-  if (text.length < 3) return jsonError('Vložte text zloženia.');
+  if (text.length < 3) return jsonError('Vlož text zloženia.');
   if (text.length > MAX_LEN) return jsonError(`Text je príliš dlhý (najviac ${MAX_LEN} znakov).`);
 
   if (!(await verifyTurnstile(body.turnstileToken as string | undefined, req))) {
-    return jsonError('Overenie proti spamu zlyhalo. Obnovte stránku a skúste to znova.', 403);
+    return jsonError('Overenie proti spamu zlyhalo. Obnov stránku a skús to znova.', 403);
   }
   if (!(await rateLimit(req, 'analyza', 30))) {
-    return jsonError('Príliš veľa požiadaviek. Skúste to o chvíľu.', 429);
+    return jsonError('Príliš veľa požiadaviek. Skús to o chvíľu.', 429);
   }
 
   const ref = await loadReferenceData();
   const r = analyze(text, ref.aliases);
-  if (r.items.length === 0) return jsonError('V texte sme nenašli žiadne zložky. Skontrolujte, či ide o zloženie krmiva.');
+  if (r.items.length === 0) return jsonError('V texte sme nenašli žiadne zložky. Skontroluj, či ide o zloženie krmiva.');
 
   const result: StoredResult = {
     ...r,
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
   }).select('id').single();
   if (error || !data) {
     console.error('analyses insert', error?.message);
-    return jsonError('Analýzu sa nepodarilo uložiť. Skúste to znova.', 500);
+    return jsonError('Analýzu sa nepodarilo uložiť. Skús to znova.', 500);
   }
   return Response.json({ id: data.id });
 }
