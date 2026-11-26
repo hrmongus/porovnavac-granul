@@ -21,9 +21,9 @@ ANIMALS = [  # (regex bez diakritiky, slovenský názov, alergén?)
     (r'husac|husi\b|hus\b|goose', 'husacie', None),
     (r'jahn|jehne|lamb|ovci|ovc', 'jahňacie', None),
     (r'hovad|hovez|beef|telac|telec|byvol|buvol|angus', 'hovädzie', None),
-    (r'bravc|vepr|pork|diviak|divocak|kanec|iberic', 'bravčové', None),
+    (r'bravc|vepr|pork|diviak|diviac|divocak|divocac|kanec|iberic', 'bravčové', None),
     (r'kral|rabbit', 'králičie', None),
-    (r'jelen|srn|dan[ie]e?l|zverin|venison|divina', 'zverina', None),
+    (r'jelen|srn|dan[ie]e?l|zverin|venison|divina|zajac|zajic|zajec|\bhare\b', 'zverina', None),
     (r'koz[ie]|kozi\b|goat', 'kozie', None),
     (r'kon[ie]|konsk|horse', 'konské', None),
     (r'prepelic|krepelk|quail', 'prepeličie', None),
@@ -174,11 +174,11 @@ D = [
  (r'rastlinn[yý] olej|rastlinne oleje|rastlinny tuk|rastlinne tuky|vegetable oil', 'rastlinny-olej-nespec', 'Rastlinný olej (bez uvedenia zdroja)', 'tuk_olej', 'nespecifikovana', 40,
   'Rastlinný olej bez uvedenia, z akej rastliny je. Nevieme posúdiť jeho kvalitu ani pomer mastných kyselín.', None),
  # --- zelenina, ovocie, bylinky ---
- (r'pastyniak|pastynak|pastrnak|pastinak|parsnip|okurk|uhork|cucumber|cerven[a]? rep|mrkv|tekvic|dyne|dýn|pumpkin|carrot|spenat|spinach|brokol|kapust|kel\b|cuket|zucchin|petrzl|parsley|zeler|celer|cvikl|repa cerven|paradajk|rajc|tomat|hrasok zelen|zelenin|vegetab|pastrnak|pastinak|cibul|fenikel|fenykl|artici|spargl|pazitk|redkev|salat|pazit|batat', 'zelenina', 'Zelenina', 'zelenina_ovocie', 'pomenovana', 90,
+ (r'klick|klicky|sprout|pastyniak|pastynak|pastrnak|pastinak|parsnip|okurk|uhork|cucumber|cerven[a]? rep|mrkv|tekvic|dyne|dýn|pumpkin|carrot|spenat|spinach|brokol|kapust|kel\b|cuket|zucchin|petrzl|parsley|zeler|celer|cvikl|repa cerven|paradajk|rajc|tomat|hrasok zelen|zelenin|vegetab|pastrnak|pastinak|cibul|fenikel|fenykl|artici|spargl|pazitk|redkev|salat|pazit|batat', 'zelenina', 'Zelenina', 'zelenina_ovocie', 'pomenovana', 90,
   'Zelenina dodáva vlákninu, vitamíny a antioxidanty. Zvyčajne je jej v granulách malé množstvo.', None),
  (r'sipek|sipk|kiwi|papaj|muchovnik|serviceberr|svestk|merun|jablk|jablc|jablec|apple|hrus|pear|brusnic|cranberr|cucoried|boruvk|blueberr|malin|raspberr|jahod|strawb|rakytn|sea ?buckthorn|sipk|rose ?hip|baz|elderb|aron|ostruzin|cerni|banan|ovoc|fruit|citrus|pomaran|grep|granat|goji|acerol|ribezl|ribez|visn|ceresn|slivk|marhul|mango|papay|ananas|datl', 'ovocie', 'Ovocie a bobuľoviny', 'zelenina_ovocie', 'pomenovana', 90,
   'Ovocie a bobuľoviny sú zdrojom vitamínov a antioxidantov. V granulách býva v malom množstve.', None),
- (r'srdcovnik|leonurus|motherwort|ligurcek|lovage|patrzel|kopr\b|kopor|dill|piskavic|senovk|fenugreek|fenikl|fenykl|pampelisk|boswell|lespedez|list brez|brezov|birch|indick[aa] ruz|ruzov[eaý] kvet|konope siate|gastanov|kastan|rozmaryn|korian|grifola|tanin|rozmarin|tymian|kurkum|turmeric|zazvor|ginger|petrzlen|bazalk|oregan|harmanc|camomil|chamomil|medovk|mata|mint|zihlav|nettle|pestrec|silymar|milk thistle|lopuch|burdock|pupava|dandelion|levand|lavend|ibis|marshmallow|alfalfa|lucern|bylin|herb|koren|root|klincek|clove|skorica|cinnamon|cesnak|garlic|kmin|anyz|horc|imel|rebrick|cernic|zemezl|echinac|ginkgo|ginseng|sedmokr|nechtik|marigold|ostruzin|zihlav|reishi|shiitake|hliv|huby|mushroom', 'bylinky', 'Bylinky a koreniny', 'prisada', 'pomenovana', 88,
+ (r'rumanc|gastan|repik|materin|dobromysel|srdcovnik|leonurus|motherwort|ligurcek|lovage|patrzel|kopr\b|kopor|dill|piskavic|senovk|fenugreek|fenikl|fenykl|pampelisk|boswell|lespedez|list brez|brezov|birch|indick[aa] ruz|ruzov[eaý] kvet|konope siate|gastanov|kastan|rozmaryn|korian|grifola|tanin|rozmarin|tymian|kurkum|turmeric|zazvor|ginger|petrzlen|bazalk|oregan|harmanc|camomil|chamomil|medovk|mata|mint|zihlav|nettle|pestrec|silymar|milk thistle|lopuch|burdock|pupava|dandelion|levand|lavend|ibis|marshmallow|alfalfa|lucern|bylin|herb|koren|root|klincek|clove|skorica|cinnamon|cesnak|garlic|kmin|anyz|horc|imel|rebrick|cernic|zemezl|echinac|ginkgo|ginseng|sedmokr|nechtik|marigold|ostruzin|zihlav|reishi|shiitake|hliv|huby|mushroom', 'bylinky', 'Bylinky a koreniny', 'prisada', 'pomenovana', 88,
   'Bylinky a koreniny pridané v malom množstve pre chuť alebo podporu trávenia. Na celkovú výživu majú malý vplyv.', None),
 ]
 

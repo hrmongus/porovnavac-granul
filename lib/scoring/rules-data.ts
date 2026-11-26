@@ -564,7 +564,7 @@ export const RULES: RulesData = {
    "sensitivity": null
   },
   {
-   "rx": "pastyniak|pastynak|pastrnak|pastinak|parsnip|okurk|uhork|cucumber|cerven[a]? rep|mrkv|tekvic|dyne|dýn|pumpkin|carrot|spenat|spinach|brokol|kapust|kel\\b|cuket|zucchin|petrzl|parsley|zeler|celer|cvikl|repa cerven|paradajk|rajc|tomat|hrasok zelen|zelenin|vegetab|pastrnak|pastinak|cibul|fenikel|fenykl|artici|spargl|pazitk|redkev|salat|pazit|batat",
+   "rx": "klick|klicky|sprout|pastyniak|pastynak|pastrnak|pastinak|parsnip|okurk|uhork|cucumber|cerven[a]? rep|mrkv|tekvic|dyne|dýn|pumpkin|carrot|spenat|spinach|brokol|kapust|kel\\b|cuket|zucchin|petrzl|parsley|zeler|celer|cvikl|repa cerven|paradajk|rajc|tomat|hrasok zelen|zelenin|vegetab|pastrnak|pastinak|cibul|fenikel|fenykl|artici|spargl|pazitk|redkev|salat|pazit|batat",
    "key": "zelenina",
    "name": "Zelenina",
    "category": "zelenina_ovocie",
@@ -584,7 +584,7 @@ export const RULES: RulesData = {
    "sensitivity": null
   },
   {
-   "rx": "srdcovnik|leonurus|motherwort|ligurcek|lovage|patrzel|kopr\\b|kopor|dill|piskavic|senovk|fenugreek|fenikl|fenykl|pampelisk|boswell|lespedez|list brez|brezov|birch|indick[aa] ruz|ruzov[eaý] kvet|konope siate|gastanov|kastan|rozmaryn|korian|grifola|tanin|rozmarin|tymian|kurkum|turmeric|zazvor|ginger|petrzlen|bazalk|oregan|harmanc|camomil|chamomil|medovk|mata|mint|zihlav|nettle|pestrec|silymar|milk thistle|lopuch|burdock|pupava|dandelion|levand|lavend|ibis|marshmallow|alfalfa|lucern|bylin|herb|koren|root|klincek|clove|skorica|cinnamon|cesnak|garlic|kmin|anyz|horc|imel|rebrick|cernic|zemezl|echinac|ginkgo|ginseng|sedmokr|nechtik|marigold|ostruzin|zihlav|reishi|shiitake|hliv|huby|mushroom",
+   "rx": "rumanc|gastan|repik|materin|dobromysel|srdcovnik|leonurus|motherwort|ligurcek|lovage|patrzel|kopr\\b|kopor|dill|piskavic|senovk|fenugreek|fenikl|fenykl|pampelisk|boswell|lespedez|list brez|brezov|birch|indick[aa] ruz|ruzov[eaý] kvet|konope siate|gastanov|kastan|rozmaryn|korian|grifola|tanin|rozmarin|tymian|kurkum|turmeric|zazvor|ginger|petrzlen|bazalk|oregan|harmanc|camomil|chamomil|medovk|mata|mint|zihlav|nettle|pestrec|silymar|milk thistle|lopuch|burdock|pupava|dandelion|levand|lavend|ibis|marshmallow|alfalfa|lucern|bylin|herb|koren|root|klincek|clove|skorica|cinnamon|cesnak|garlic|kmin|anyz|horc|imel|rebrick|cernic|zemezl|echinac|ginkgo|ginseng|sedmokr|nechtik|marigold|ostruzin|zihlav|reishi|shiitake|hliv|huby|mushroom",
    "key": "bylinky",
    "name": "Bylinky a koreniny",
    "category": "prisada",
@@ -758,7 +758,7 @@ export const RULES: RulesData = {
    "allergen": null
   },
   {
-   "rx": "bravc|vepr|pork|diviak|divocak|kanec|iberic",
+   "rx": "bravc|vepr|pork|diviak|diviac|divocak|divocac|kanec|iberic",
    "name": "bravčové",
    "allergen": null
   },
@@ -768,7 +768,7 @@ export const RULES: RulesData = {
    "allergen": null
   },
   {
-   "rx": "jelen|srn|dan[ie]e?l|zverin|venison|divina",
+   "rx": "jelen|srn|dan[ie]e?l|zverin|venison|divina|zajac|zajic|zajec|\\bhare\\b",
    "name": "zverina",
    "allergen": null
   },
