@@ -1,5 +1,5 @@
 // Záložné pravidlá pre zápisy zložiek, ktoré nie sú v ingredient_aliases.
-// Presný prepis reference/ingredients_rules.py (metodika v1.0). Dáta pravidiel sú v rules-data.ts.
+// Presný prepis reference/ingredients_rules.py (metodika 2.0). Dáta pravidiel sú v rules-data.ts.
 import { RULES, type RawRule } from './rules-data';
 
 export type Color = 'zelena' | 'zlta' | 'oranzova' | 'cervena' | 'seda';
