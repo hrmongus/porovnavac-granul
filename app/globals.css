@@ -243,3 +243,7 @@ textarea { min-height: 180px; resize: vertical; }
 .ing .expl { margin: 0; padding: 0 14px 14px; font-size: 15px; }
 .ing.open { background: #fff; }
 @media (max-width: 420px) { .ing-side { flex-direction: column; align-items: flex-end; gap: 4px; } }
+
+/* Nenápadný riadok Granula úplne dole (bod 9.1, časť 5) */
+.granula-footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid #c9c1b7; font-size: 13px; color: #3d3d3d; }
+.granula-footer a { font-weight: 600; }

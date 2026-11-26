@@ -177,3 +177,19 @@ export function GranulaBlock({ r, dogName, female, orderUrl }: { r: StoredResult
     </section>
   );
 }
+
+/** Je na výsledku zobrazený blok Granula (odporúčanie alebo tlačidlo pri Granule so 100/100)? */
+export function granulaBlockShown(r: StoredResult): boolean {
+  const g = r.granula;
+  return !!g && (g.mode === 'recommend' || (g.mode === 'fits' && !!g.recipeId));
+}
+
+/** Bod 9.1, časť 5: nenápadný riadok úplne dole – len keď nie je zobrazený blok Granula (aby odkaz nebol dvakrát). */
+export function GranulaFooter({ r, dogName, url }: { r: StoredResult; dogName: string; url: string }) {
+  if (granulaBlockShown(r)) return null;
+  return (
+    <p className="granula-footer">
+      Granula – granule vyskladané na mieru pre každého psa. <a href={url}>Pozri, čo by sme vybrali pre psa {dogName} →</a>
+    </p>
+  );
+}

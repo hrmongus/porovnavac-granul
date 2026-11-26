@@ -15,8 +15,9 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-
 const CONFIGURATOR_ALLERGIES = new Set(ALLERGY_OPTIONS.map((a) => a.id).filter((id) => !['psenica', 'kukurica', 'soja'].includes(id)));
 
 /** Odkaz na konfigurátor: s ?kviz=<id>, ak sa odpovede podarilo uložiť, inak len začiatok konfigurátora s UTM. */
-export function configuratorUrl(quizId: string | null | undefined): string {
-  const q = new URLSearchParams(quizId && UUID_RE.test(quizId) ? { kviz: quizId, ...UTM } : UTM);
+export function configuratorUrl(quizId: string | null | undefined, utmContent?: string): string {
+  const utm: Record<string, string> = utmContent ? { ...UTM, utm_content: utmContent } : UTM;
+  const q = new URLSearchParams(quizId && UUID_RE.test(quizId) ? { kviz: quizId, ...utm } : utm);
   return `${CONFIGURATOR}?${q.toString()}`;
 }
 

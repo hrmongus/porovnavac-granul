@@ -80,6 +80,7 @@ export async function POST(req: Request) {
     consentGiven,
     result: analysis.result as StoredResult,
     orderUrl: configuratorUrl(quizId),
+    footerUrl: configuratorUrl(quizId, 'paticka'),
   });
   return Response.json({ ok: true, emailSent: sent });
 }

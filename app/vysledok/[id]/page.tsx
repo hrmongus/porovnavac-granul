@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { adminClient } from '@/lib/server/admin';
 import type { StoredResult } from '@/lib/result';
-import { Findings, GranulaBlock, FitBox, IngredientList, Indicators, ScoreBox } from '@/app/components/ResultTable';
+import { Findings, GranulaBlock, GranulaFooter, FitBox, IngredientList, Indicators, ScoreBox } from '@/app/components/ResultTable';
 import EmailGate from '@/app/components/EmailGate';
 import { configuratorUrl, ensureQuizId } from '@/lib/server/granula-quiz';
 import { parseDog } from '@/lib/dog/validate';
@@ -48,6 +48,7 @@ export default async function ResultPage({ params }: { params: Promise<{ id: str
         <Link href={`/nahlasit-chybu?analyza=${data.id}`}>Nahlásiť chybu</Link> · <Link href="/">Vyhodnotiť ďalšie granule</Link>
       </p>
       <GranulaBlock r={r} dogName={dogName} female={female} orderUrl={configuratorUrl(quizId)} />
+      <GranulaFooter r={r} dogName={dogName} url={configuratorUrl(quizId, 'paticka')} />
     </div>
   );
 }

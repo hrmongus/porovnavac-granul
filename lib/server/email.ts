@@ -28,9 +28,10 @@ interface Args {
   consentGiven: boolean;
   result: StoredResult;
   orderUrl: string; // konfigurátor na granula.sk (s ?kviz=<id>, ak sa podarilo uložiť odpovede)
+  footerUrl: string; // to isté s utm_content=paticka
 }
 
-export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, result, orderUrl }: Omit<Args, 'to'>) {
+export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, result, orderUrl, footerUrl }: Omit<Args, 'to'>) {
   const link = `${appUrl()}/vysledok/${analysisId}`;
   const rows = result.items.map((it) => {
     const note = sensitivityNote(it.sensitivity, it.explanation);
@@ -87,6 +88,9 @@ export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, re
       ${g.pricePerDay != null ? `<p style="margin:0 0 10px;font-size:13px">Cca ${g.pricePerDay.toFixed(2).replace('.', ',')} € na deň (vrece ${esc(g.bagLabel ?? '')}, s mesačným predplatným).</p>` : ''}
       <a href="${esc(orderUrl)}" style="display:inline-block;background:#FF6900;color:#000;border:1.6px solid #000;padding:12px 20px;font-weight:900;text-transform:uppercase;text-decoration:none">Objednať granule pre psa ${dn} →</a></div>`;
 
+  // bod 9.1, časť 5: nenápadný riadok, ak nie je zobrazený blok Granula
+  const footer = granulaBox ? '' : `<p style="margin:20px 0 0;padding-top:12px;border-top:1px solid #d6cfc6;font-size:12px;color:#3d3d3d">Granula – granule vyskladané na mieru pre každého psa. <a style="color:#0047BB" href="${esc(footerUrl)}">Pozri, čo by sme vybrali pre psa ${dn} →</a></p>`;
+
   const consentBox = consentGiven
     ? `<p style="font-size:12px;color:#3d3d3d">Novinky od Granuly už nechceš dostávať? <a href="${appUrl()}/suhlas?akcia=odvolat&t=${signToken('revoke', leadId)}">Odvolať súhlas</a>.</p>`
     : `<p style="font-size:13px;color:#3d3d3d">Ak chceš od Granuly dostávať aj novinky a ponuky, súhlas môžeš potvrdiť tu: <a style="color:#0047BB" href="${appUrl()}/suhlas?akcia=potvrdit&t=${signToken('consent', leadId)}">Potvrdiť súhlas</a>. Bez neho ti iné správy neposielame.</p>`;
@@ -101,7 +105,7 @@ export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, re
     <table style="width:100%;border-collapse:collapse;font-size:14px;border-top:1.6px solid #000">${rows}</table>
     <p style="font-size:13px;color:#3d3d3d;margin-top:16px">Hodnotíme iba text zloženia podľa verejnej <a style="color:#0047BB" href="${appUrl()}/metodika">metodiky</a> (verzia ${esc(result.methodology_version)}). Farba je vždy doplnená textom a číslom.</p>
     </div>
-    ${granulaBox}
+    ${granulaBox}${footer}
     ${consentBox}
   </div></body></html>`;
 
