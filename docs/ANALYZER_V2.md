@@ -122,3 +122,30 @@ Blok na konci výsledku, vizuálne oddelený, s nadpisom **„Granule na mieru p
 - Ak engine nenájde vhodnú receptúru (napr. alergia na všetky druhy mäsa), blok ukáže: „Pre Bobíka teraz nemáme vhodnú receptúru.“ – nič iné neponúkaj.
 - Tlačidlo: „Objednať granule pre Bobíka →“ na `https://www.granula.sk/granule-na-mieru.html` s predvyplnenými odpoveďami (ak to konfigurátor podporuje, inak len UTM) – `utm_source=analyzer&utm_medium=web&utm_campaign=vysledok`.
 - V e-maile s výsledkom rovnaký blok, oddelený od hodnotenia.
+
+## 10. Prepojenie s konfigurátorom na granula.sk (zákazník nevypĺňa 2×)
+
+granula.sk to už vie: `granule-na-mieru.html?kviz=<uuid>` načíta odpovede zo servera (`GET https://www.granula.sk/api/quiz/<uuid>`)
+a otvorí rovno **výsledok** (#vysledok) s vybranou receptúrou, vrecom a objednávkou. Odpovede sa ukladajú cez
+`POST https://www.granula.sk/api/quiz` (tabuľka `quiz_sessions`) – rovnako ako to robí `kviz.js`.
+
+Postup v analyzéri:
+1. Otázky o psovi ukladaj **presne v tvare konfigurátora** – kľúče `dogname, sex, breed, breedSet, kg, years, months, weeks,
+   activity, neutered, pregnant, body, focus, allergies` a ich hodnoty (id plemien z `BREEDS`, aktivita, postava, zameranie
+   a alergie podľa `kviz.js` / `engine.js` na granula.sk). Žiadne vlastné hodnoty – inak sa odpovede neprenesú.
+2. Pri zobrazení výsledku **server analyzéra** (nie prehliadač – kvôli CORS) pošle
+   `POST https://www.granula.sk/api/quiz` s telom
+   `{ id: <nové uuid v4>, step: "vysledok", answers: {…}, plan: "mesiac", utm: { utm_source: "analyzer", utm_medium: "web", utm_campaign: "vysledok" }, referrer: "", landing: "analyzer" }`.
+   Uuid ulož k analýze (`analyses.granula_quiz_id`, nová migrácia).
+3. Tlačidlo „Objednať granule pre Bobíka →“ vedie na
+   `https://www.granula.sk/granule-na-mieru.html?kviz=<uuid>&utm_source=analyzer&utm_medium=web&utm_campaign=vysledok`.
+   Rovnaký odkaz v e-maile s výsledkom.
+4. Ak POST zlyhá, odkaz ide bez `kviz` na začiatok konfigurátora – nič sa nezastaví.
+5. Otestuj na produkcii granula.sk: po kliknutí sa musí otvoriť výsledok s rovnakým menom psa, receptúrou a dávkou ako v analyzéri.
+   Ak granula.sk požiadavku z iného servera odmietne (kontrola pôvodu), napíš presne čo treba povoliť na strane granula.sk.
+
+Do ochrany osobných údajov doplň: odpovede o psovi (bez e-mailu) sa pri kliknutí na odporúčanie odovzdajú konfigurátoru
+na granula.sk, ktorý prevádzkuje ten istý prevádzkovateľ (Spark Link, s. r. o.).
+
+Voliteľne opačným smerom: konfigurátor na granula.sk môže vo výsledku ponúknuť „Porovnaj so svojimi súčasnými granulami“ →
+`analyzer/?kviz=<uuid>`; analyzér si odpovede načíta cez `GET /api/quiz/<uuid>` a otázky o psovi preskočí.
