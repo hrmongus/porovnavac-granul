@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  // docs/METODIKA.md sa číta pri zostavení stránky Metodika
+  outputFileTracingIncludes: { "/metodika": ["./docs/METODIKA.md"] },
 };
 
 export default nextConfig;
