@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { displayName, nameWithoutBrand } from '@/lib/product-name';
 import ClickableIngredients from './IngredientList';
 import { COLOR_LEGEND, COLOR_NAME, type StoredResult } from '@/lib/result';
 import { colorOf } from '@/lib/scoring/rules';
@@ -22,7 +23,7 @@ export function ScoreBox({ r }: { r: StoredResult }) {
       <div>
         <p className="verdict">{r.score}/100 · {r.verdict}</p>
         {r.percentile !== null && <p>Lepšie ako {r.percentile} % granúl na slovenskom trhu.</p>}
-        {r.product && <p className="hint"><strong>{r.product.brand}</strong> {r.product.name}</p>}
+        {r.product && <p className="hint"><strong>{r.product.brand}</strong> {nameWithoutBrand(r.product.brand, r.product.name)}</p>}
       </div>
     </div>
   );
@@ -159,7 +160,7 @@ export function GranulaBlock({ r, dogName, female, orderUrl }: { r: StoredResult
           </div>
         </div>
         <table className="compare">
-          <thead><tr><th></th><th>{r.product ? `${r.product.brand} ${r.product.name}` : 'Tvoje granule'}</th><th>Granula {g.name}</th></tr></thead>
+          <thead><tr><th></th><th>{r.product ? displayName(r.product.brand, r.product.name) : 'Tvoje granule'}</th><th>Granula {g.name}</th></tr></thead>
           <tbody>
             <tr><th>Skóre zloženia</th><td>{r.score ?? '–'}/100</td><td>{g.score ?? '–'}/100</td></tr>
             <tr><th>Hodí sa pre psa {dogName}</th><td>{r.fit?.score ?? '–'}/100</td><td>{g.fit?.score ?? '–'}/100</td></tr>

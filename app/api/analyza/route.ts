@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   const productIdIn = Number(body.productId);
   if (productIdIn > 0) {
     const { data } = await publicClient().from('products')
-      .select('id, name, composition_raw, composition_date, source_url, analytical_raw, energy_raw, life_stage, nutritional_additives_raw, brands(name)')
+      .select('id, name, composition_raw, composition_date, source_url, analytical_raw, energy_raw, life_stage, nutritional_additives_raw, trace_elements_raw, brands(name)')
       .eq('id', productIdIn).maybeSingle();
     if (!data) return jsonError('Produkt sa nenašiel.', 404);
     text = data.composition_raw;
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       brand: (data.brands as unknown as { name: string } | null)?.name ?? '',
       name: data.name, composition_date: data.composition_date, source_url: data.source_url,
       analytical_raw: data.analytical_raw, energy_raw: data.energy_raw, life_stage: data.life_stage,
-      additives_raw: data.nutritional_additives_raw,
+      additives_raw: data.nutritional_additives_raw, trace_raw: data.trace_elements_raw,
     };
   } else {
     text = typeof body.text === 'string' ? body.text.trim() : '';
@@ -99,10 +99,10 @@ export async function POST(req: Request) {
 /** Receptúry Granula z databázy (hodnotia sa rovnako ako ostatné krmivá). */
 async function granulaProducts(): Promise<GranulaDbProduct[]> {
   const { data } = await publicClient().from('products')
-    .select('name, composition_raw, composition_date, source_url, analytical_raw, energy_raw, life_stage, nutritional_additives_raw, brands!inner(name, is_granula)')
+    .select('name, composition_raw, composition_date, source_url, analytical_raw, energy_raw, life_stage, nutritional_additives_raw, trace_elements_raw, brands!inner(name, is_granula)')
     .eq('brands.is_granula', true);
   return (data ?? []).map((p) => ({
     brand: 'Granula', name: p.name, composition_raw: p.composition_raw, composition_date: p.composition_date, source_url: p.source_url,
-    analytical_raw: p.analytical_raw, energy_raw: p.energy_raw, life_stage: p.life_stage, additives_raw: p.nutritional_additives_raw,
+    analytical_raw: p.analytical_raw, energy_raw: p.energy_raw, life_stage: p.life_stage, additives_raw: p.nutritional_additives_raw, trace_raw: p.trace_elements_raw,
   }));
 }

@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { displayName, nameWithoutBrand } from '@/lib/product-name';
 
 export type Source =
   | { kind: 'produkt'; productId: number; label: string }
@@ -115,7 +116,7 @@ export default function SourcePicker({ onReady, token, consumeToken }: {
             <ul className="hits" role="listbox" aria-label="Návrhy">
               {shownHits.map((h) => (
                 <li key={h.id}>
-                  <button type="button" onClick={() => pick(h)}><strong>{h.brand}</strong> {h.name}</button>
+                  <button type="button" onClick={() => pick(h)}><strong>{h.brand}</strong> {nameWithoutBrand(h.brand, h.name)}</button>
                 </li>
               ))}
             </ul>
@@ -130,13 +131,13 @@ export default function SourcePicker({ onReady, token, consumeToken }: {
 
       {mode === 'hladat' && picked && (
         <div className="stack">
-          <p className="picked"><strong>{picked.brand}</strong> {picked.name}</p>
+          <p className="picked"><strong>{picked.brand}</strong> {nameWithoutBrand(picked.brand, picked.name)}</p>
           <p className="hint">
             Zloženie podľa etikety, stav k {fmtDate(picked.composition_date)}. Zdroj: {picked.source ?? 'neuvedený'}. Výrobca mohol recept zmeniť.{' '}
             <Link href="/nahlasit-chybu">Nahlásiť chybu</Link>
           </p>
           <div className="row">
-            <button type="button" className="btn" onClick={() => onReady({ kind: 'produkt', productId: picked.id, label: `${picked.brand} ${picked.name}` })}>Pokračovať</button>
+            <button type="button" className="btn" onClick={() => onReady({ kind: 'produkt', productId: picked.id, label: displayName(picked.brand, picked.name) })}>Pokračovať</button>
             <button type="button" className="linklike" onClick={() => setPicked(null)}>Vybrať iné</button>
           </div>
         </div>

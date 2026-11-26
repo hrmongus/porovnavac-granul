@@ -15,6 +15,7 @@ export interface ProductInfo {
   energy_raw: string | null;
   life_stage: string | null;
   additives_raw: string | null;
+  trace_raw?: string | null;  // stopové prvky (trace_elements_raw)
 }
 
 export interface Indicator { key: 'quality' | 'meat' | 'processing' | 'transparency'; label: string; points: number; word: string; text: string }
@@ -141,8 +142,8 @@ export function fitForDog(r: AnalysisResult, dog: DogAnswers, product: ProductIn
 
   // Kĺby
   if (dog.focus.includes('kby') || d.largeGiant || d.stage === 'senior') {
-    const all = deacc(`${items.map((it) => it.raw).join(' ')} ${product?.additives_raw ?? ''} ${product?.analytical_raw ?? ''}`);
-    if (!/glukozamin|glucosamin|glukosamin|chondroitin/.test(all)) reasons.push({ text: 'Neobsahuje glukozamín ani chondroitín na podporu kĺbov.', points: 5, fix: 'obsahuje glukozamín a chondroitín' });
+    const all = deacc(`${items.map((it) => it.raw).join(' ')} ${product?.additives_raw ?? ''} ${product?.trace_raw ?? ''} ${product?.analytical_raw ?? ''}`);
+    if (!/glukozamin|glucosamin|glukosamin|glucosamine|chondroitin/.test(all)) reasons.push({ text: 'Neobsahuje glukozamín ani chondroitín na podporu kĺbov.', points: 5, fix: 'obsahuje glukozamín a chondroitín' });
   }
 
   let score = 100 - reasons.reduce((s, x) => s + (x.cap ? 0 : x.points), 0);
