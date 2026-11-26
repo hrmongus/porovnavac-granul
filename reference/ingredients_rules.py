@@ -231,11 +231,11 @@ MEAT_SCORES = {'cerstve': 100, 'susene': 100, 'maso': 100, 'vnutor': 97, 'hydrol
 FAT_FISH = {'losos': 92, 'sleď': 90, 'treska': 88, 'sardinky': 90, 'makrela': 90, 'pstruh': 90, 'morské plody': 90}
 
 def form_of(t):
-    if re.search(r'tuk|olej|oil|fat|loj\b|sadl', t): return 'tuk'
+    if re.search(r'tuk|olej|oil|fat|loj\b|sadl|mast\b|masti\b|lard', t): return 'tuk'
     if re.search(r'hydrolyz', t): return 'hydrolyz'
     if re.search(r'muck|moucka|meal', t) and not re.search(r'susen', t): return 'muck'
     if re.search(r'bielkovin|protein|proteín|bilkovin', t): return 'bielkov'
-    if re.search(r'pecen|jater|srdc|zaludk|ladvin|droby|vnutor|liver|heart|gizzard|tripe|bachor|pluc|slezin|krk[yu]|chrupav', t): return 'vnutor'
+    if re.search(r'pecen|jater|srdc|zaludk|ladvin|oblick|kidney|droby|vnutor|liver|heart|gizzard|tripe|bachor|pluc|slezin|krk[yu]|chrupav', t): return 'vnutor'
     if re.search(r'vyvar|omack|broth|stock|gravy|bujon', t): return 'vyvar'
     if re.search(r'cerstv|fresh|surov|mrazen|chlazen|vykost|deboned|raw', t): return 'cerstve'
     if re.search(r'susen|dehydr|dried|vysus', t): return 'susene'

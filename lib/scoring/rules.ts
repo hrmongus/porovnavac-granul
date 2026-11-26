@@ -80,11 +80,11 @@ function explainMeat(animal: string, form: Form): string {
 }
 
 function formOf(t: string): Form {
-  if (/tuk|olej|oil|fat|loj\b|sadl/.test(t)) return 'tuk';
+  if (/tuk|olej|oil|fat|loj\b|sadl|mast\b|masti\b|lard/.test(t)) return 'tuk';
   if (/hydrolyz/.test(t)) return 'hydrolyz';
   if (/muck|moucka|meal/.test(t) && !/susen/.test(t)) return 'muck';
   if (/bielkovin|protein|proteín|bilkovin/.test(t)) return 'bielkov';
-  if (/pecen|jater|srdc|zaludk|ladvin|droby|vnutor|liver|heart|gizzard|tripe|bachor|pluc|slezin|krk[yu]|chrupav/.test(t)) return 'vnutor';
+  if (/pecen|jater|srdc|zaludk|ladvin|oblick|kidney|droby|vnutor|liver|heart|gizzard|tripe|bachor|pluc|slezin|krk[yu]|chrupav/.test(t)) return 'vnutor';
   if (/vyvar|omack|broth|stock|gravy|bujon/.test(t)) return 'vyvar';
   if (/cerstv|fresh|surov|mrazen|chlazen|vykost|deboned|raw/.test(t)) return 'cerstve';
   if (/susen|dehydr|dried|vysus/.test(t)) return 'susene';
