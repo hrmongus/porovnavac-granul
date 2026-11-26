@@ -54,6 +54,7 @@ const ANIMALS = RULES.ANIMALS.map((a) => ({ rx: rx(a.rx), name: a.name, allergen
 const FISH_GENERIC = rx(RULES.FISH_GENERIC);
 const POULTRY_GENERIC = rx(RULES.POULTRY_GENERIC);
 const MEAT_GENERIC = rx(RULES.MEAT_GENERIC);
+const MUSSEL = rx(RULES.MUSSEL);
 const JUNK = rx(RULES.JUNK);
 const MEAT_SCORES: Record<string, number> = RULES.MEAT_SCORES;
 const FAT_FISH: Record<string, number> = RULES.FAT_FISH;
@@ -81,7 +82,7 @@ function explainMeat(animal: string, form: Form): string {
 function formOf(t: string): Form {
   if (/tuk|olej|oil|fat|loj\b|sadl/.test(t)) return 'tuk';
   if (/hydrolyz/.test(t)) return 'hydrolyz';
-  if (/muck|moucka|meal|mlet/.test(t) && !/susen/.test(t)) return 'muck';
+  if (/muck|moucka|meal/.test(t) && !/susen/.test(t)) return 'muck';
   if (/bielkovin|protein|proteín|bilkovin/.test(t)) return 'bielkov';
   if (/pecen|jater|srdc|zaludk|ladvin|droby|vnutor|liver|heart|gizzard|tripe|bachor|pluc|slezin|krk[yu]|chrupav/.test(t)) return 'vnutor';
   if (/vyvar|omack|broth|stock|gravy|bujon/.test(t)) return 'vyvar';
@@ -116,6 +117,8 @@ export function classify(raw: string): Classified | null {
   if (t === null) return null;
   // 1) nešpecifikované / umelé majú prednosť
   for (const r of D.slice(0, 12)) if (r.rx.test(t)) return fromRule(r);
+  // 1b) zelenoústa mušľa = doplnok na kĺby, nie mäso
+  if (MUSSEL.test(t)) { const k = D.find((r) => r.key === 'klby'); if (k) return fromRule(k); }
   // 2) pomenované zviera
   const found = ANIMALS.find((a) => a.rx.test(t));
   const animal = found?.name ?? null;
@@ -145,7 +148,7 @@ export function classify(raw: string): Classified | null {
       };
     }
     if (POULTRY_GENERIC.test(t)) {
-      const sc = ({ tuk: 78, muck: 60, hydrolyz: 65, bielkov: 70 } as Record<string, number>)[f] ?? 80;
+      const sc = ({ tuk: 78, muck: 30, hydrolyz: 65, bielkov: 70 } as Record<string, number>)[f] ?? 80;
       return {
         key: `hydina-${f}`, name: `Hydina (${f})`, category: f === 'tuk' ? 'tuk_olej' : 'maso', classification: 'spracovana',
         score: sc, color: colorOf(sc), sensitivity: 'kuracie',
@@ -153,7 +156,7 @@ export function classify(raw: string): Classified | null {
       };
     }
     if (isFishy) {
-      const sc = ({ tuk: 78, muck: 65, hydrolyz: 60, bielkov: 68 } as Record<string, number>)[f] ?? 78;
+      const sc = ({ tuk: 78, muck: 30, hydrolyz: 60, bielkov: 68 } as Record<string, number>)[f] ?? 78;
       return {
         key: `ryba-${f}`, name: `Ryba bez uvedenia druhu (${f})`, category: f === 'tuk' ? 'tuk_olej' : 'maso', classification: 'spracovana',
         score: sc, color: colorOf(sc), sensitivity: null,

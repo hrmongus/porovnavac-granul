@@ -15,7 +15,8 @@ Rovnaké pravidlá platia pre všetky krmivá vrátane Granuly.
 
 Hlavné princípy:
 - **Pomenovaný zdroj > nepomenovaný.** „Kuracie mäso“ je lepšie ako „mäso“; „lososový olej“ lepší ako „oleje a tuky“.
-- **Forma mäsa:** pomenované mäso (čerstvé aj sušené) 100, vnútornosti 97, bielkovina 90, hydrolyzát 85, múčka 80.
+- **Forma mäsa:** pomenované mäso (čerstvé aj sušené) 100, vnútornosti 97, bielkovina 90, hydrolyzát 85.
+- **Mäsová múčka je 🔴** (pomenovaná 40, bez druhu zvieraťa 30). Sú to pomleté vedľajšie produkty z bitúnkov a z obalu sa nedá zistiť, z ktorých častí zvieraťa sú; stráviteľnosť bielkovín je nižšia než pri mäse (Johnson a kol. 1998, Cramer a kol. 2007). Múčka medzi prvými piatimi zložkami preto obmedzí skóre produktu na najviac 49.
   Pri čerstvom mäse upozorníme, že obsahuje ~70 % vody. Najlepšie zloženia tak môžu dosiahnuť 100/100.
 - **Citlivosť nie je chyba.** Kuracie mäso je kvalitné (🟢) – zobrazí sa len poznámka, že patrí medzi častejšie alergény.
 - **Lacné plnivá** (kukurica, pšenica, škroby, hrachové frakcie) sú 🟠 – je to fakt o ich výživovej hodnote, nie názor.

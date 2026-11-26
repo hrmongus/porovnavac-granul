@@ -17,7 +17,7 @@ def deacc(s):
 ANIMALS = [  # (regex bez diakritiky, slovenský názov, alergén?)
     (r'kurac|kurat|kura\b|kure|kurec|kurc|chicken', 'kuracie', 'kuracie'),
     (r'morc|morka|morky|kruti|kruta|krocan|turkey', 'morčacie', None),
-    (r'kac|kach|duck', 'kačacie', None),
+    (r'kacac|kacic|kack|kach|duck', 'kačacie', None),
     (r'husac|husi\b|hus\b|goose', 'husacie', None),
     (r'jahn|jehne|lamb|ovci|ovc', 'jahňacie', None),
     (r'hovad|hovez|beef|telac|telec|byvol|buvol|angus', 'hovädzie', None),
@@ -222,13 +222,14 @@ def explain_meat(animal, form):
     }
     return base[form]
 
-MEAT_SCORES = {'cerstve': 100, 'susene': 100, 'maso': 100, 'vnutor': 97, 'hydrolyz': 85, 'bielkov': 90, 'muck': 80, 'tuk': 85, 'vyvar': 75}
+MUSSEL = r'musl|slavk|perna|zelenoust|green.?lipped'
+MEAT_SCORES = {'cerstve': 100, 'susene': 100, 'maso': 100, 'vnutor': 97, 'hydrolyz': 85, 'bielkov': 90, 'muck': 40, 'tuk': 85, 'vyvar': 75}
 FAT_FISH = {'losos': 92, 'sleď': 90, 'treska': 88, 'sardinky': 90, 'makrela': 90, 'pstruh': 90, 'morské plody': 90}
 
 def form_of(t):
     if re.search(r'tuk|olej|oil|fat|loj\b|sadl', t): return 'tuk'
     if re.search(r'hydrolyz', t): return 'hydrolyz'
-    if re.search(r'muck|moucka|meal|mlet', t) and not re.search(r'susen', t): return 'muck'
+    if re.search(r'muck|moucka|meal', t) and not re.search(r'susen', t): return 'muck'
     if re.search(r'bielkovin|protein|proteín|bilkovin', t): return 'bielkov'
     if re.search(r'pecen|jater|srdc|zaludk|ladvin|droby|vnutor|liver|heart|gizzard|tripe|bachor|pluc|slezin|krk[yu]|chrupav', t): return 'vnutor'
     if re.search(r'vyvar|omack|broth|stock|gravy|bujon', t): return 'vyvar'
@@ -246,6 +247,11 @@ def classify(raw):
     for rx, key, name, cat, cls, sc, expl, sens in D[:12]:
         if re.search(rx, t):
             return dict(key=key, name=name, category=cat, classification=cls, score=sc, color=color(sc), explanation=expl, sensitivity=sens)
+    # 1b) zelenoústa mušľa = doplnok na kĺby, nie mäso
+    if re.search(MUSSEL, t):
+        for rx, key, name, cat, cls, sc, expl, sens in D:
+            if key == 'klby':
+                return dict(key=key, name=name, category=cat, classification=cls, score=sc, color=color(sc), explanation=expl, sensitivity=sens)
     # 2) pomenované zviera
     animal, allerg = animal_of(t)
     is_fishy = re.search(FISH_GENERIC, t)
@@ -266,11 +272,11 @@ def classify(raw):
             return dict(key=key, name=name, category=cat, classification=cls, score=sc, color=color(sc), explanation=expl, sensitivity=sens)
         # čiastočne pomenované: hydina / ryby všeobecne
         if re.search(POULTRY_GENERIC, t):
-            sc = {'tuk': 78, 'muck': 60, 'hydrolyz': 65, 'bielkov': 70}.get(f, 80)
+            sc = {'tuk': 78, 'muck': 30, 'hydrolyz': 65, 'bielkov': 70}.get(f, 80)
             return dict(key=f'hydina-{f}', name=f'Hydina ({f})', category='tuk_olej' if f == 'tuk' else 'maso', classification='spracovana', score=sc, color=color(sc),
                         explanation='Hydina bez uvedenia druhu (kura, morka, kačica…). Je to živočíšny zdroj, ale presné zviera nevieme – pri alergii na kuracie to nie je možné vylúčiť.', sensitivity='kuracie')
         if is_fishy:
-            sc = {'tuk': 78, 'muck': 65, 'hydrolyz': 60, 'bielkov': 68}.get(f, 78)
+            sc = {'tuk': 78, 'muck': 30, 'hydrolyz': 60, 'bielkov': 68}.get(f, 78)
             return dict(key=f'ryba-{f}', name=f'Ryba bez uvedenia druhu ({f})', category='tuk_olej' if f == 'tuk' else 'maso', classification='spracovana', score=sc, color=color(sc),
                         explanation='Ryba bez uvedenia druhu. Je to živočíšny zdroj (pri oleji aj omega-3 mastných kyselín), ale nevieme, aké ryby to sú.', sensitivity=None)
         return dict(key='maso-nespecifikovane', name='Mäso bez uvedenia zvieraťa', category='zivocisny_vedlajsi_produkt', classification='nespecifikovana', score=20, color=color(20),

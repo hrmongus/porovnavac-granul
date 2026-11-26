@@ -1,6 +1,6 @@
 // VYGENEROVANÉ zo reference/ingredients_rules.py skriptom scripts/gen_rules_data.py – needitovať ručne.
 export interface RawRule { rx: string; key: string; name: string; category: string; classification: string; score: number; explanation: string; sensitivity: string | null }
-export interface RulesData { D: RawRule[]; EXTRA: RawRule[]; ANIMALS: { rx: string; name: string; allergen: string | null }[]; FISH_GENERIC: string; POULTRY_GENERIC: string; MEAT_GENERIC: string; JUNK: string; MEAT_SCORES: Record<string, number>; FAT_FISH: Record<string, number> }
+export interface RulesData { D: RawRule[]; EXTRA: RawRule[]; ANIMALS: { rx: string; name: string; allergen: string | null }[]; FISH_GENERIC: string; POULTRY_GENERIC: string; MEAT_GENERIC: string; JUNK: string; MUSSEL: string; MEAT_SCORES: Record<string, number>; FAT_FISH: Record<string, number> }
 export const RULES: RulesData = {
  "D": [
   {
@@ -718,7 +718,7 @@ export const RULES: RulesData = {
    "allergen": null
   },
   {
-   "rx": "kac|kach|duck",
+   "rx": "kacac|kacic|kack|kach|duck",
    "name": "kačacie",
    "allergen": null
   },
@@ -832,6 +832,7 @@ export const RULES: RulesData = {
  "POULTRY_GENERIC": "hydin|drub|poultry",
  "MEAT_GENERIC": "\\bmas[oa]\\b|\\bmaso\\b|meat|\\bmase\\b|masov",
  "JUNK": "^(\\d+([.,]\\d+)? ?kg\\b|\\)|zlozky$|prirodne prisady|zlozenie|slozeni|= ?prirodn|prirodne zlozky|vlhkost|popol|hrub[ya] (popol|vlaknina|tuk|protein)|dostupne balenia|kompletne krmivo|dopln?kove krmivo|susene$|cerstve$|pridavne|technologick|nutricne|analyticke|obsah|metabolizovatel|energia|semena$|semienka$)",
+ "MUSSEL": "musl|slavk|perna|zelenoust|green.?lipped",
  "MEAT_SCORES": {
   "cerstve": 100,
   "susene": 100,
@@ -839,7 +840,7 @@ export const RULES: RulesData = {
   "vnutor": 97,
   "hydrolyz": 85,
   "bielkov": 90,
-  "muck": 80,
+  "muck": 40,
   "tuk": 85,
   "vyvar": 75
  },
