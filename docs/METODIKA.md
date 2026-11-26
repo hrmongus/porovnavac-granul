@@ -54,7 +54,7 @@ Kompletný zoznam typov zložiek je v tabuľke `ingredients` (a v `supabase/data
 
 ## 3. Ako sa krmivo hodí pre konkrétneho psa (0–100)
 
-Samostatné skóre podľa odpovedí o psovi. Začína sa na 100 a odpočítava sa za nesúlad: alergén psa v zložení (strop 20), krmivo pre inú životnú fázu (−15 až −30) alebo veľkosť (−10), vysoký tuk pri pankrease (−30/−40) alebo nadváhe (−20), málo bielkovín či tuku pre športového psa (−10/−15), veľa tuku pri malom pohybe (−10), veľa druhov mäsa alebo pšenica/kukurica/sója pri citlivom trávení (−10/−15), chýbajúca kĺbová výživa pri veľkých plemenách a senioroch (−5).
+Samostatné skóre podľa odpovedí o psovi. Začína sa na 100 a odpočítava sa za nesúlad: alergén psa v zložení (strop 20), krmivo pre inú životnú fázu (−15 až −30) alebo veľkosť (−10), vysoký tuk pri pankrease (−30/−40) alebo nadváhe (−20), málo bielkovín či tuku pre športového psa (−10/−15), veľa tuku pri malom pohybe (−10), viac druhov mäsa (2 druhy −5, 3 a viac −15; tuky sa nerátajú) alebo pšenica/kukurica/sója v prvých piatich zložkách (−10) pri citlivom trávení, chýbajúca kĺbová výživa pri veľkých plemenách a senioroch (−5).
 85–100 hodí sa výborne, 65–84 s výhradami, 40–64 skôr nie, 0–39 nehodí sa. Rovnaké pravidlá platia aj pre receptúry Granula. Nie je to veterinárna rada.
 
 ## 4. Porovnanie s trhom

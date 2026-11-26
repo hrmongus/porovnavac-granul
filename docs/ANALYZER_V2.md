@@ -65,7 +65,7 @@ Rovnaké pravidlá pre každé krmivo – aj pre odporúčanú receptúru Granul
 | Nadváha | postava „kilo navyše“ alebo zameranie „váha“ a tuk ≥ 16 % | −20 | |
 | Šport, práca | bielkoviny < 24 % / tuk < 14 % | −15 / −10 | |
 | Málo pohybu, senior | tuk ≥ 18 % | −10 | |
-| Citlivé trávenie, „nesedí mu každé mäso“ | ≥ 3 druhy zvierat / pšenica, kukurica alebo sója v top 5 | −15 / −10 | |
+| Citlivé trávenie, „nesedí mu každé mäso“ (rovnaká podmienka ako `d.intolerance` v engine.js) | druhy zvierat len z mäsa, vnútorností, múčok a bielkovín (tuky a oleje sa nerátajú – rovnako ako „monoproteín“ v engine.js): 2 druhy −5, 3 a viac −15 / pšenica, kukurica alebo sója v top 5 −10 | −5 / −15 / −10 | „Má 4 druhy mäsa (morka, hus, kačica, kura). Pri citlivom trávení je vhodnejší jeden druh.“ |
 | Kĺby | zameranie „kĺby“, veľké/obrie plemeno alebo senior a krmivo nemá glukozamín ani chondroitín | −5 | |
 
 - Fáza a veľkosť psa: z engine.js (`derive`). Fáza a veľkosť krmiva: `life_stage`, inak z názvu (puppy, junior, šteňa, štěně, adult, senior, mini, small, medium, maxi, large, giant).
@@ -149,3 +149,14 @@ na granula.sk, ktorý prevádzkuje ten istý prevádzkovateľ (Spark Link, s. r.
 
 Voliteľne opačným smerom: konfigurátor na granula.sk môže vo výsledku ponúknuť „Porovnaj so svojimi súčasnými granulami“ →
 `analyzer/?kviz=<uuid>`; analyzér si odpovede načíta cez `GET /api/quiz/<uuid>` a otázky o psovi preskočí.
+
+### 9.1 Kedy odporúčanie neponúkať ako zmenu
+
+Porovnaj krmivo používateľa (A) s receptúrou, ktorú vybral engine (G):
+- **A je tá istá receptúra ako G** → žiadna tabuľka. Text: „Toto sú presne granule, ktoré by sme Erikovi vybrali aj my.“ + tlačidlo „Objednať granule pre psa Erik →“ (kviz s `recipe` = G).
+- **A je iná receptúra Granula a hodí sa rovnako alebo lepšie ako G** (skóre „hodí sa“ A ≥ G) → žiadna tabuľka, žiadne odporúčanie inej receptúry. Text: „Tieto granule sa Erikovi hodia.“ + tlačidlo na objednanie **A** (kviz s `recipe` = A, `recipeFor` = G).
+- **A je iná receptúra Granula a G sa hodí lepšie** → tabuľka A vs. G + jedna veta prečo (`rule.why`), napr. „Pre citlivé trávenie odporúčame jeden druh mäsa.“ Dve tlačidlá: „Objednať {G}“ (hlavné) a „Ostať pri {A}“.
+- **A je iná značka a G nie je lepšie v skóre zloženia ani v „hodí sa“** → bez tabuľky, len krátky blok „Chceš vyskúšať granule vyskladané na mieru pre Erika?“ + tlačidlo.
+- Inak (iná značka, G lepšie aspoň v jednom) → tabuľka ako v bode 9; slovo „lepšie“ iba keď je G lepšie v oboch.
+
+Kontrolný prípad: pes so zameraním „citlivé trávenie“ alebo „nesedí mu každé mäso“, analyzované Granula Morka, hus & kačica → „hodí sa“ 85 (4 druhy mäsa), engine vyberie Jahňa (monoproteín, „hodí sa“ vyššie) → tabuľka + dôvod. Rovnaký pes bez citlivého trávenia → Morka sa hodí a odporúčanie inej receptúry sa neukáže.
