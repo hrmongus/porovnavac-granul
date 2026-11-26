@@ -192,7 +192,7 @@ EXTRA = [
   'Látka udržiavajúca vlhkosť a mäkkosť granúl. Pre výživu psa nemá význam.', None),
  (r'lecitin|lecithin', 'lecitin', 'Lecitín', 'prisada', 'pomenovana', 80,
   'Prírodný emulgátor (zvyčajne zo sóje alebo slnečnice), zdroj fosfolipidov.', None),
- (r'klinoptilol|zeolit|bentonit|rasel|humin|montmorillon|kremelin|diatom', 'ilove-mineraly', 'Íly a ílové minerály (zeolit, rašelina, humínové látky)', 'vitaminy_mineraly', 'pomenovana', 70,
+ (r'klinoptilol|zeolit|bentonit|rasel|humin|humac|montmorillon|kremelin|diatom', 'ilove-mineraly', 'Íly a ílové minerály (zeolit, rašelina, humínové látky)', 'vitaminy_mineraly', 'pomenovana', 70,
   'Prírodné látky, ktoré viažu toxíny a pomáhajú pri trávení a pevnej stolici.', None),
  (r'^vlaknin|rastlinn[aá] vlaknin|^vlaknina|psylli|cukrovarsk[eé] rezk', 'vlaknina-rastlinna', 'Rastlinná vláknina', 'vlaknina', 'nespecifikovana', 70,
   'Vláknina z rastlín bez bližšieho určenia – podporuje trávenie a pocit sýtosti.', None),

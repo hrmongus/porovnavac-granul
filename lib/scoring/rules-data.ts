@@ -636,7 +636,7 @@ export const RULES: RulesData = {
    "sensitivity": null
   },
   {
-   "rx": "klinoptilol|zeolit|bentonit|rasel|humin|montmorillon|kremelin|diatom",
+   "rx": "klinoptilol|zeolit|bentonit|rasel|humin|humac|montmorillon|kremelin|diatom",
    "key": "ilove-mineraly",
    "name": "Íly a ílové minerály (zeolit, rašelina, humínové látky)",
    "category": "vitaminy_mineraly",
