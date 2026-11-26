@@ -87,3 +87,18 @@ V databáze: `products.score_total`, `score_quality`, `score_meat`, `score_proce
 (migrácia `20261126040000_methodology_2_0.sql`, dáta `supabase/data/zlozky_a_skore_v2.sql`).
 
 Rozloženie trhu: medián 49, 90+ má 67 produktov, pod 50 je 1 113 z 1 784. Granula 91–96.
+
+## 8. Fronta na doplnenie (neznáme zložky a chýbajúce krmivá)
+
+Databázová časť je hotová (migrácia `20261126050000_na_doplnenie.sql`):
+- `analyses.product_hint` – nepovinné „Aké granule to sú?“ pri fotke/texte,
+- `search_misses` – neúspešné hľadania v zozname (iba text a čas, RLS, zápis len cez server),
+- pohľady `na_doplnenie_zlozky` a `na_doplnenie_krmiva` (len service_role). Zložka z fronty zmizne sama, keď pre ňu pribudne alias.
+
+Treba dorobiť v aplikácii:
+1. Pri fotke a texte nepovinné pole **„Aké granule to sú? (značka a názov)“**, max. 200 znakov → `product_hint`.
+2. Keď hľadanie v zozname nič nenájde (≥ 3 znaky, po 1,5 s bez písania), server uloží dopyt do `search_misses`. Rate limit ako pri analýze.
+3. **Týždenný e-mail** (pondelok 7:00, Netlify scheduled function + Resend) na `info@granula.sk`: 20 najčastejších neznámych zložiek a 20 najčastejších chýbajúcich krmív s počtom a príkladom. Ak je fronta prázdna, e-mail nechodí.
+4. Neznáma zložka sa vo výsledku zobrazí šedou s vetou „Túto zložku zatiaľ nepoznáme – doplníme ju.“ (už je).
+
+Doplnenie robí Claude (plánovacia relácia): pravidlá v `reference/ingredients_rules.py` → `scripts/gen_rules_data.py` → nový dátový súbor so zložkami, aliasmi a prepočítaným skóre.

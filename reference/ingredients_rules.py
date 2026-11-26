@@ -40,7 +40,7 @@ ANIMALS = [  # (regex bez diakritiky, slovenský názov, alergén?)
     (r'hmyz|insect|cvrc|larv|hermetia|mucha', 'hmyz', None),
     (r'biela ryba|bila ryba|white fish|whitefish|morske ryby|morskych ryb', 'biela morská ryba', None),
 ]
-FISH_GENERIC = r'\bryb|\bryby|fish'
+FISH_GENERIC = r'\bryb|\bryby|fish|menhaden'
 POULTRY_GENERIC = r'hydin|drub|poultry'
 MEAT_GENERIC = r'\bmas[oa]\b|\bmaso\b|meat|\bmase\b|masov'
 
@@ -57,7 +57,7 @@ D = [
   'Súhrnné označenie pre časti zvierat, ktoré nie sú svalovinou (môžu to byť vnútornosti, ale aj menej hodnotné časti). Etiketa neuvádza, z akého zvieraťa ani z akých častí – nedá sa overiť, čo pes naozaj je.', None),
  (r'^masa?( a| &)? ?zivocis|^maso a|^masove? mucky|^mas[ao]vá? mucka|^masova mucka|^zivocisne bielkoviny$|^zivocisna bielkovina|^zivocisne proteiny|^zivocisne mucky|^mucka zo zivocis', 'maso-nespecifikovane', 'Mäso / mäsová múčka bez uvedenia zvieraťa', 'zivocisny_vedlajsi_produkt', 'nespecifikovana', 20,
   'Mäso alebo múčka bez uvedenia, z akého zvieraťa pochádza. Pri alergii sa nedá overiť a nie je jasná ani kvalita surovín.', None),
- (r'^hydrolyzovany protein|^zdroje bielkovin|^lahko stravitelne bielkoviny|hydrolyz.*zivocis|zivocis.*hydrolyz|^hydrolyzovane bielkoviny$|^bielkovinovy hydrolyzat|^proteinovy hydrolyzat|^hydrolyzat bielkovin', 'hydrolyzat-nespecifikovany', 'Hydrolyzované bielkoviny (bez uvedenia zdroja)', 'zivocisny_vedlajsi_produkt', 'nespecifikovana', 40,
+ (r'^hydrolyzovan[aá] bielkovin|^hydrolyzovane bielkoviny|^hydrolyzovany protein|^zdroje bielkovin|^lahko stravitelne bielkoviny|hydrolyz.*zivocis|zivocis.*hydrolyz|^hydrolyzovane bielkoviny$|^bielkovinovy hydrolyzat|^proteinovy hydrolyzat|^hydrolyzat bielkovin', 'hydrolyzat-nespecifikovany', 'Hydrolyzované bielkoviny (bez uvedenia zdroja)', 'zivocisny_vedlajsi_produkt', 'nespecifikovana', 40,
   'Bielkoviny rozložené na menšie časti – zlepšujú chuť a sú ľahšie stráviteľné. Nie je však uvedené, z čoho pochádzajú, takže sa nedá overiť pôvod ani vhodnosť pri alergii.', None),
  (r'^zivocisn[ey] tuky?$|^zivocisne tuky|^tuky? zivocis|^zivocisny tuk', 'zivocisny-tuk-nespecifikovany', 'Živočíšny tuk (bez uvedenia zvieraťa)', 'tuk_olej', 'nespecifikovana', 30,
   'Tuk zo zvierat bez uvedenia druhu. Dodáva energiu a chuť, ale nevieme, odkiaľ pochádza.', None),
@@ -103,7 +103,7 @@ D = [
   'Ľahko stráviteľný zdroj energie (sacharidov), vhodný aj pre citlivé trávenie.', 'obilniny'),
  (r'ovos|oves|ovsen|oat', 'ovos', 'Ovos / ovsené vločky', 'obilnina', 'pomenovana', 78,
   'Obilnina s vlákninou a beta-glukánmi, šetrná k tráveniu.', 'obilniny'),
- (r'jacm|jecm|barley', 'jacmen', 'Jačmeň', 'obilnina', 'pomenovana', 72,
+ (r'sladov|\bslad\b|malt|jacm|jecm|barley', 'jacmen', 'Jačmeň', 'obilnina', 'pomenovana', 72,
   'Obilnina, zdroj energie a vlákniny. Obsahuje lepok.', 'obilniny'),
  (r'quino|spald|spelt|proso|millet|jahl|cirok|sorghum|pohan|buckwheat|quinoa|kinoa|amarant|tritikal|raz\b|rasz|zito|rye', 'ine-obilniny', 'Proso / cirok / špalda / pohánka / quinoa', 'obilnina', 'pomenovana', 75,
   'Menej bežná obilnina alebo pseudoobilnina – zdroj energie a vlákniny.', 'obilniny'),
@@ -114,7 +114,7 @@ D = [
   'Časť hrachu oddelená pri spracovaní. Hrachová bielkovina lacne zvyšuje obsah bielkovín na etikete, škrob slúži ako pojivo. Ak je ich v zložení viac, môžu „rozdeliť“ hrach, aby nebol na prvom mieste.', 'strukoviny'),
  (r'hrach|hras|pea\b|peas\b', 'hrach', 'Hrach / hrášok', 'strukovina', 'pomenovana', 60,
   'Strukovina – zdroj energie, vlákniny a rastlinnej bielkoviny. Bežná náhrada obilia v krmivách „bez obilnín“.', 'strukoviny'),
- (r'sosovic|cocka|lentil|cicer|cizrn|chickpea|fazul|fazol|bean|bob\b|lupin|vlcí bob', 'ine-strukoviny', 'Šošovica / cícer / fazuľa', 'strukovina', 'pomenovana', 60,
+ (r'sosovk|sosovic|cocka|lentil|cicer|cizrn|chickpea|fazul|fazol|bean|bob\b|lupin|vlcí bob', 'ine-strukoviny', 'Šošovica / cícer / fazuľa', 'strukovina', 'pomenovana', 60,
   'Strukovina – zdroj energie, vlákniny a rastlinnej bielkoviny.', 'strukoviny'),
  # --- zemiaky a škroby ---
  (r'sladk[eé] zemiak|batat|sweet potato|kukurydz', 'batat', 'Batáty (sladké zemiaky)', 'zelenina_ovocie', 'pomenovana', 85,
@@ -133,21 +133,21 @@ D = [
  (r'otrub|bran\b', 'otruby', 'Otruby', 'vlaknina', 'pomenovana', 65,
   'Obalové časti zŕn – zdroj vlákniny. Výživovo málo hodnotné.', 'obilniny'),
  # --- prebiotiká, funkčné ---
- (r'cakank|cekank|inulin|chicor|frukto.?oligo|fos\b|manan|mannan|mos\b|glukan|oligosachar|prebiot|bunkove steny kvas', 'prebiotika', 'Prebiotiká (čakanka, inulín, FOS, MOS)', 'vlaknina', 'pomenovana', 92,
+ (r'\bxos\b|xylo.?oligo|\bgos\b|galakto.?oligo|f\.o\.s|butyrat|cakank|cekank|inulin|chicor|frukto.?oligo|fos\b|manan|mannan|mos\b|glukan|oligosachar|prebiot|bunkove steny kvas', 'prebiotika', 'Prebiotiká (čakanka, inulín, FOS, MOS)', 'vlaknina', 'pomenovana', 92,
   'Látky, ktoré slúžia ako potrava pre prospešné črevné baktérie a podporujú zdravé trávenie a imunitu.', None),
- (r'skorapk|skořápk|koryš|korys|glukozam|glukosam|glucosam|chondroit|kolagen|collagen|zelenoust|zelenoš|green.?lipped|msm\b|metylsulfonyl|chrupav|cartilag', 'klby', 'Glukozamín / chondroitín / kolagén', 'prisada', 'pomenovana', 92,
+ (r'gluokzamin|glukozamin|glukosamin|skorapk|skořápk|koryš|korys|glukozam|glukosam|glucosam|chondroit|kolagen|collagen|zelenoust|zelenoš|green.?lipped|msm\b|metylsulfonyl|chrupav|cartilag', 'klby', 'Glukozamín / chondroitín / kolagén', 'prisada', 'pomenovana', 92,
   'Látky prirodzene sa vyskytujúce v chrupavkách. Pridávajú sa na podporu kĺbov.', None),
  (r'pivovar|brewer|kvasn|drozdi|kvasinky|yeast|saccharomyc', 'kvasnice', 'Kvasnice / pivovarské kvasnice', 'prisada', 'pomenovana', 85,
   'Zdroj vitamínov skupiny B, bielkovín a látok podporujúcich imunitu. Zlepšujú aj chuť.', None),
  (r'deaktivovane bakter|probiot|enterococc|lactobac|bacillus|bifido|postbiot', 'probiotika', 'Probiotiká / postbiotiká', 'prisada', 'pomenovana', 92,
   'Prospešné baktérie (alebo ich produkty) na podporu črevnej mikroflóry.', None),
- (r'yuc+a|juk[aoy]|juky', 'yucca', 'Yucca schidigera', 'prisada', 'pomenovana', 88,
+ (r'palma mohave|yuka|juka|yuc+a|juk[aoy]|juky', 'yucca', 'Yucca schidigera', 'prisada', 'pomenovana', 88,
   'Výťažok z rastliny yucca – znižuje zápach stolice a podporuje trávenie.', None),
  (r'rias|ras[ay]\b|riasy|riasa|kelp|chaluh|spirulin|chlorel|alga|schizochytr|morsk[aá] trav|seaweed', 'riasy', 'Morské riasy / spirulina', 'prisada', 'pomenovana', 88,
   'Prírodný zdroj minerálov, jódu a pri niektorých riasach aj omega-3 mastných kyselín.', None),
  (r'vajc|vajec|vejc|egg', 'vajcia', 'Vajcia', 'maso', 'pomenovana', 92,
   'Vysoko stráviteľná živočíšna bielkovina s výbornou biologickou hodnotou.', None),
- (r'mliek|mlec|syr\b|syrov|srvatk|whey|milk|cheese|jogurt|tvaroh', 'mliecne', 'Mlieko a mliečne výrobky', 'ine', 'pomenovana', 55,
+ (r'mliecn\w* protein|kazein|kolostr|colostr|mliek|mlec|syr\b|syrov|srvatk|whey|milk|cheese|jogurt|tvaroh', 'mliecne', 'Mlieko a mliečne výrobky', 'ine', 'pomenovana', 55,
   'Mliečne zložky zlepšujú chuť. Dospelé psy však laktózu často zle trávia.', None),
  # --- minerály a soli ---
  (r'mineral|nerast', 'mineralne-latky', 'Minerálne látky', 'vitaminy_mineraly', 'nespecifikovana', 75,
@@ -169,16 +169,16 @@ D = [
   'Lacný rastlinný tuk s nízkym obsahom esenciálnych mastných kyselín. Pre psa výživovo málo prínosný.', None),
  (r'sojov[yý] olej|soy(bean)? oil', 'sojovy-olej', 'Sójový olej', 'tuk_olej', 'pomenovana', 60,
   'Rastlinný olej, zdroj omega-6 mastných kyselín. Lacnejšia alternatíva k rybím olejom.', None),
- (r'slnecnic|slunecnic|sunflower|repkov|repkovy|rapeseed|canola|kukuricn[yý] olej|svetlicov|safflower|konopn|hemp|kokos|coconut|olivov|olive|pupalk|borak|ostropest[rř]|chia|tekvicov[eé] semi|semienk', 'rastlinne-oleje-semena', 'Rastlinné oleje a semená (slnečnica, repka, konope…)', 'tuk_olej', 'pomenovana', 70,
+ (r'bodliak|thistle oil|slnecnic|slunecnic|sunflower|repkov|repkovy|rapeseed|canola|kukuricn[yý] olej|svetlicov|safflower|konopn|hemp|kokos|coconut|olivov|olive|pupalk|borak|ostropest[rř]|chia|tekvicov[eé] semi|semienk', 'rastlinne-oleje-semena', 'Rastlinné oleje a semená (slnečnica, repka, konope…)', 'tuk_olej', 'pomenovana', 70,
   'Konkrétne pomenovaný rastlinný olej alebo semeno – zdroj energie a mastných kyselín.', None),
  (r'rastlinn[yý] olej|rastlinne oleje|rastlinny tuk|rastlinne tuky|vegetable oil', 'rastlinny-olej-nespec', 'Rastlinný olej (bez uvedenia zdroja)', 'tuk_olej', 'nespecifikovana', 40,
   'Rastlinný olej bez uvedenia, z akej rastliny je. Nevieme posúdiť jeho kvalitu ani pomer mastných kyselín.', None),
  # --- zelenina, ovocie, bylinky ---
- (r'cerven[a]? rep|mrkv|tekvic|dyne|dýn|pumpkin|carrot|spenat|spinach|brokol|kapust|kel\b|cuket|zucchin|petrzl|parsley|zeler|celer|cvikl|repa cerven|paradajk|rajc|tomat|hrasok zelen|zelenin|vegetab|pastrnak|pastinak|cibul|fenikel|fenykl|artici|spargl|pazitk|redkev|salat|pazit|batat', 'zelenina', 'Zelenina', 'zelenina_ovocie', 'pomenovana', 90,
+ (r'pastyniak|pastynak|pastrnak|pastinak|parsnip|okurk|uhork|cucumber|cerven[a]? rep|mrkv|tekvic|dyne|dýn|pumpkin|carrot|spenat|spinach|brokol|kapust|kel\b|cuket|zucchin|petrzl|parsley|zeler|celer|cvikl|repa cerven|paradajk|rajc|tomat|hrasok zelen|zelenin|vegetab|pastrnak|pastinak|cibul|fenikel|fenykl|artici|spargl|pazitk|redkev|salat|pazit|batat', 'zelenina', 'Zelenina', 'zelenina_ovocie', 'pomenovana', 90,
   'Zelenina dodáva vlákninu, vitamíny a antioxidanty. Zvyčajne je jej v granulách malé množstvo.', None),
- (r'svestk|merun|jablk|jablc|jablec|apple|hrus|pear|brusnic|cranberr|cucoried|boruvk|blueberr|malin|raspberr|jahod|strawb|rakytn|sea ?buckthorn|sipk|rose ?hip|baz|elderb|aron|ostruzin|cerni|banan|ovoc|fruit|citrus|pomaran|grep|granat|goji|acerol|ribezl|ribez|visn|ceresn|slivk|marhul|mango|papay|ananas|datl', 'ovocie', 'Ovocie a bobuľoviny', 'zelenina_ovocie', 'pomenovana', 90,
+ (r'sipek|sipk|kiwi|papaj|muchovnik|serviceberr|svestk|merun|jablk|jablc|jablec|apple|hrus|pear|brusnic|cranberr|cucoried|boruvk|blueberr|malin|raspberr|jahod|strawb|rakytn|sea ?buckthorn|sipk|rose ?hip|baz|elderb|aron|ostruzin|cerni|banan|ovoc|fruit|citrus|pomaran|grep|granat|goji|acerol|ribezl|ribez|visn|ceresn|slivk|marhul|mango|papay|ananas|datl', 'ovocie', 'Ovocie a bobuľoviny', 'zelenina_ovocie', 'pomenovana', 90,
   'Ovocie a bobuľoviny sú zdrojom vitamínov a antioxidantov. V granulách býva v malom množstve.', None),
- (r'rozmaryn|korian|grifola|tanin|rozmarin|tymian|kurkum|turmeric|zazvor|ginger|petrzlen|bazalk|oregan|harmanc|camomil|chamomil|medovk|mata|mint|zihlav|nettle|pestrec|silymar|milk thistle|lopuch|burdock|pupava|dandelion|levand|lavend|ibis|marshmallow|alfalfa|lucern|bylin|herb|koren|root|klincek|clove|skorica|cinnamon|cesnak|garlic|kmin|anyz|horc|imel|rebrick|cernic|zemezl|echinac|ginkgo|ginseng|sedmokr|nechtik|marigold|ostruzin|zihlav|reishi|shiitake|hliv|huby|mushroom', 'bylinky', 'Bylinky a koreniny', 'prisada', 'pomenovana', 88,
+ (r'srdcovnik|leonurus|motherwort|ligurcek|lovage|patrzel|kopr\b|kopor|dill|piskavic|senovk|fenugreek|fenikl|fenykl|pampelisk|boswell|lespedez|list brez|brezov|birch|indick[aa] ruz|ruzov[eaý] kvet|konope siate|gastanov|kastan|rozmaryn|korian|grifola|tanin|rozmarin|tymian|kurkum|turmeric|zazvor|ginger|petrzlen|bazalk|oregan|harmanc|camomil|chamomil|medovk|mata|mint|zihlav|nettle|pestrec|silymar|milk thistle|lopuch|burdock|pupava|dandelion|levand|lavend|ibis|marshmallow|alfalfa|lucern|bylin|herb|koren|root|klincek|clove|skorica|cinnamon|cesnak|garlic|kmin|anyz|horc|imel|rebrick|cernic|zemezl|echinac|ginkgo|ginseng|sedmokr|nechtik|marigold|ostruzin|zihlav|reishi|shiitake|hliv|huby|mushroom', 'bylinky', 'Bylinky a koreniny', 'prisada', 'pomenovana', 88,
   'Bylinky a koreniny pridané v malom množstve pre chuť alebo podporu trávenia. Na celkovú výživu majú malý vplyv.', None),
 ]
 
@@ -186,7 +186,7 @@ JUNK = re.compile(r'^(\d+([.,]\d+)? ?kg\b|\)|zlozky$|prirodne prisady|zlozenie|s
 EXTRA = [
  (r'hydrolyz.*pecen|^pecen|^pecene|hydrolyzovane pecene', 'pecen-nespecifikovana', 'Pečeň (bez uvedenia zvieraťa)', 'zivocisny_vedlajsi_produkt', 'spracovana', 65,
   'Pečeň bez uvedenia zvieraťa – výživovo hodnotná a chutná, ale nevieme, z akého zvieraťa pochádza.', None),
- (r'rastlinn\w* bielkovin|extrakt\w* rastlinn|bielkovinov[yý] (izolat|extrakt)|rastlinny protein|rastlinne proteiny', 'rastlinna-bielkovina-nespec', 'Rastlinná bielkovina (bez uvedenia zdroja)', 'ine', 'nespecifikovana', 45,
+ (r'rostlinn\w* bilkovin|rastlinn\w* bielkovin|extrakt\w* rastlinn|bielkovinov[yý] (izolat|extrakt)|rastlinny protein|rastlinne proteiny', 'rastlinna-bielkovina-nespec', 'Rastlinná bielkovina (bez uvedenia zdroja)', 'ine', 'nespecifikovana', 45,
   'Bielkovina z rastlín bez uvedenia, z akých. Lacne zvyšuje obsah bielkovín na etikete; pre psa je menej hodnotná ako živočíšna.', None),
  (r'autolyzat', 'autolyzat', 'Autolyzát (bez uvedenia zdroja)', 'prisada', 'nespecifikovana', 45,
   'Produkt samovoľného rozkladu bielkovín (napr. kvasníc alebo mäsa), slúži na zlepšenie chuti. Zdroj nie je uvedený.', None),
@@ -196,9 +196,9 @@ EXTRA = [
   'Látka udržiavajúca vlhkosť a mäkkosť granúl. Pre výživu psa nemá význam.', None),
  (r'lecitin|lecithin', 'lecitin', 'Lecitín', 'prisada', 'pomenovana', 80,
   'Prírodný emulgátor (zvyčajne zo sóje alebo slnečnice), zdroj fosfolipidov.', None),
- (r'klinoptilol|zeolit|bentonit|rasel|humin|humac|montmorillon|kremelin|diatom', 'ilove-mineraly', 'Íly a ílové minerály (zeolit, rašelina, humínové látky)', 'vitaminy_mineraly', 'pomenovana', 70,
+ (r'fulvo|fulvov|klinoptilol|zeolit|bentonit|rasel|humin|humac|montmorillon|kremelin|diatom', 'ilove-mineraly', 'Íly a ílové minerály (zeolit, rašelina, humínové látky)', 'vitaminy_mineraly', 'pomenovana', 70,
   'Prírodné látky, ktoré viažu toxíny a pomáhajú pri trávení a pevnej stolici.', None),
- (r'^vlaknin|rastlinn[aá] vlaknin|^vlaknina|psylli|cukrovarsk[eé] rezk', 'vlaknina-rastlinna', 'Rastlinná vláknina', 'vlaknina', 'nespecifikovana', 70,
+ (r'skrupin|^vlaknin|rastlinn[aá] vlaknin|^vlaknina|psylli|cukrovarsk[eé] rezk', 'vlaknina-rastlinna', 'Rastlinná vláknina', 'vlaknina', 'nespecifikovana', 70,
   'Vláknina z rastlín bez bližšieho určenia – podporuje trávenie a pocit sýtosti.', None),
  (r'caj|green tea|aloe|aksamiet|anyz|aniz|salvi|salvej|sipok|kvaka|kvak|hrebicek|rasc|zeruch|karob|carob|svatojanskeho|citron|limet', 'bylinky2', 'Bylinky, čaj a rastlinné extrakty', 'prisada', 'pomenovana', 88,
   'Bylinky a rastlinné extrakty pridané v malom množstve pre chuť alebo podporu trávenia a imunity.', None),

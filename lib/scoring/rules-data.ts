@@ -24,7 +24,7 @@ export const RULES: RulesData = {
    "sensitivity": null
   },
   {
-   "rx": "^hydrolyzovany protein|^zdroje bielkovin|^lahko stravitelne bielkoviny|hydrolyz.*zivocis|zivocis.*hydrolyz|^hydrolyzovane bielkoviny$|^bielkovinovy hydrolyzat|^proteinovy hydrolyzat|^hydrolyzat bielkovin",
+   "rx": "^hydrolyzovan[aá] bielkovin|^hydrolyzovane bielkoviny|^hydrolyzovany protein|^zdroje bielkovin|^lahko stravitelne bielkoviny|hydrolyz.*zivocis|zivocis.*hydrolyz|^hydrolyzovane bielkoviny$|^bielkovinovy hydrolyzat|^proteinovy hydrolyzat|^hydrolyzat bielkovin",
    "key": "hydrolyzat-nespecifikovany",
    "name": "Hydrolyzované bielkoviny (bez uvedenia zdroja)",
    "category": "zivocisny_vedlajsi_produkt",
@@ -244,7 +244,7 @@ export const RULES: RulesData = {
    "sensitivity": "obilniny"
   },
   {
-   "rx": "jacm|jecm|barley",
+   "rx": "sladov|\\bslad\\b|malt|jacm|jecm|barley",
    "key": "jacmen",
    "name": "Jačmeň",
    "category": "obilnina",
@@ -294,7 +294,7 @@ export const RULES: RulesData = {
    "sensitivity": "strukoviny"
   },
   {
-   "rx": "sosovic|cocka|lentil|cicer|cizrn|chickpea|fazul|fazol|bean|bob\\b|lupin|vlcí bob",
+   "rx": "sosovk|sosovic|cocka|lentil|cicer|cizrn|chickpea|fazul|fazol|bean|bob\\b|lupin|vlcí bob",
    "key": "ine-strukoviny",
    "name": "Šošovica / cícer / fazuľa",
    "category": "strukovina",
@@ -374,7 +374,7 @@ export const RULES: RulesData = {
    "sensitivity": "obilniny"
   },
   {
-   "rx": "cakank|cekank|inulin|chicor|frukto.?oligo|fos\\b|manan|mannan|mos\\b|glukan|oligosachar|prebiot|bunkove steny kvas",
+   "rx": "\\bxos\\b|xylo.?oligo|\\bgos\\b|galakto.?oligo|f\\.o\\.s|butyrat|cakank|cekank|inulin|chicor|frukto.?oligo|fos\\b|manan|mannan|mos\\b|glukan|oligosachar|prebiot|bunkove steny kvas",
    "key": "prebiotika",
    "name": "Prebiotiká (čakanka, inulín, FOS, MOS)",
    "category": "vlaknina",
@@ -384,7 +384,7 @@ export const RULES: RulesData = {
    "sensitivity": null
   },
   {
-   "rx": "skorapk|skořápk|koryš|korys|glukozam|glukosam|glucosam|chondroit|kolagen|collagen|zelenoust|zelenoš|green.?lipped|msm\\b|metylsulfonyl|chrupav|cartilag",
+   "rx": "gluokzamin|glukozamin|glukosamin|skorapk|skořápk|koryš|korys|glukozam|glukosam|glucosam|chondroit|kolagen|collagen|zelenoust|zelenoš|green.?lipped|msm\\b|metylsulfonyl|chrupav|cartilag",
    "key": "klby",
    "name": "Glukozamín / chondroitín / kolagén",
    "category": "prisada",
@@ -414,7 +414,7 @@ export const RULES: RulesData = {
    "sensitivity": null
   },
   {
-   "rx": "yuc+a|juk[aoy]|juky",
+   "rx": "palma mohave|yuka|juka|yuc+a|juk[aoy]|juky",
    "key": "yucca",
    "name": "Yucca schidigera",
    "category": "prisada",
@@ -444,7 +444,7 @@ export const RULES: RulesData = {
    "sensitivity": null
   },
   {
-   "rx": "mliek|mlec|syr\\b|syrov|srvatk|whey|milk|cheese|jogurt|tvaroh",
+   "rx": "mliecn\\w* protein|kazein|kolostr|colostr|mliek|mlec|syr\\b|syrov|srvatk|whey|milk|cheese|jogurt|tvaroh",
    "key": "mliecne",
    "name": "Mlieko a mliečne výrobky",
    "category": "ine",
@@ -544,7 +544,7 @@ export const RULES: RulesData = {
    "sensitivity": null
   },
   {
-   "rx": "slnecnic|slunecnic|sunflower|repkov|repkovy|rapeseed|canola|kukuricn[yý] olej|svetlicov|safflower|konopn|hemp|kokos|coconut|olivov|olive|pupalk|borak|ostropest[rř]|chia|tekvicov[eé] semi|semienk",
+   "rx": "bodliak|thistle oil|slnecnic|slunecnic|sunflower|repkov|repkovy|rapeseed|canola|kukuricn[yý] olej|svetlicov|safflower|konopn|hemp|kokos|coconut|olivov|olive|pupalk|borak|ostropest[rř]|chia|tekvicov[eé] semi|semienk",
    "key": "rastlinne-oleje-semena",
    "name": "Rastlinné oleje a semená (slnečnica, repka, konope…)",
    "category": "tuk_olej",
@@ -564,7 +564,7 @@ export const RULES: RulesData = {
    "sensitivity": null
   },
   {
-   "rx": "cerven[a]? rep|mrkv|tekvic|dyne|dýn|pumpkin|carrot|spenat|spinach|brokol|kapust|kel\\b|cuket|zucchin|petrzl|parsley|zeler|celer|cvikl|repa cerven|paradajk|rajc|tomat|hrasok zelen|zelenin|vegetab|pastrnak|pastinak|cibul|fenikel|fenykl|artici|spargl|pazitk|redkev|salat|pazit|batat",
+   "rx": "pastyniak|pastynak|pastrnak|pastinak|parsnip|okurk|uhork|cucumber|cerven[a]? rep|mrkv|tekvic|dyne|dýn|pumpkin|carrot|spenat|spinach|brokol|kapust|kel\\b|cuket|zucchin|petrzl|parsley|zeler|celer|cvikl|repa cerven|paradajk|rajc|tomat|hrasok zelen|zelenin|vegetab|pastrnak|pastinak|cibul|fenikel|fenykl|artici|spargl|pazitk|redkev|salat|pazit|batat",
    "key": "zelenina",
    "name": "Zelenina",
    "category": "zelenina_ovocie",
@@ -574,7 +574,7 @@ export const RULES: RulesData = {
    "sensitivity": null
   },
   {
-   "rx": "svestk|merun|jablk|jablc|jablec|apple|hrus|pear|brusnic|cranberr|cucoried|boruvk|blueberr|malin|raspberr|jahod|strawb|rakytn|sea ?buckthorn|sipk|rose ?hip|baz|elderb|aron|ostruzin|cerni|banan|ovoc|fruit|citrus|pomaran|grep|granat|goji|acerol|ribezl|ribez|visn|ceresn|slivk|marhul|mango|papay|ananas|datl",
+   "rx": "sipek|sipk|kiwi|papaj|muchovnik|serviceberr|svestk|merun|jablk|jablc|jablec|apple|hrus|pear|brusnic|cranberr|cucoried|boruvk|blueberr|malin|raspberr|jahod|strawb|rakytn|sea ?buckthorn|sipk|rose ?hip|baz|elderb|aron|ostruzin|cerni|banan|ovoc|fruit|citrus|pomaran|grep|granat|goji|acerol|ribezl|ribez|visn|ceresn|slivk|marhul|mango|papay|ananas|datl",
    "key": "ovocie",
    "name": "Ovocie a bobuľoviny",
    "category": "zelenina_ovocie",
@@ -584,7 +584,7 @@ export const RULES: RulesData = {
    "sensitivity": null
   },
   {
-   "rx": "rozmaryn|korian|grifola|tanin|rozmarin|tymian|kurkum|turmeric|zazvor|ginger|petrzlen|bazalk|oregan|harmanc|camomil|chamomil|medovk|mata|mint|zihlav|nettle|pestrec|silymar|milk thistle|lopuch|burdock|pupava|dandelion|levand|lavend|ibis|marshmallow|alfalfa|lucern|bylin|herb|koren|root|klincek|clove|skorica|cinnamon|cesnak|garlic|kmin|anyz|horc|imel|rebrick|cernic|zemezl|echinac|ginkgo|ginseng|sedmokr|nechtik|marigold|ostruzin|zihlav|reishi|shiitake|hliv|huby|mushroom",
+   "rx": "srdcovnik|leonurus|motherwort|ligurcek|lovage|patrzel|kopr\\b|kopor|dill|piskavic|senovk|fenugreek|fenikl|fenykl|pampelisk|boswell|lespedez|list brez|brezov|birch|indick[aa] ruz|ruzov[eaý] kvet|konope siate|gastanov|kastan|rozmaryn|korian|grifola|tanin|rozmarin|tymian|kurkum|turmeric|zazvor|ginger|petrzlen|bazalk|oregan|harmanc|camomil|chamomil|medovk|mata|mint|zihlav|nettle|pestrec|silymar|milk thistle|lopuch|burdock|pupava|dandelion|levand|lavend|ibis|marshmallow|alfalfa|lucern|bylin|herb|koren|root|klincek|clove|skorica|cinnamon|cesnak|garlic|kmin|anyz|horc|imel|rebrick|cernic|zemezl|echinac|ginkgo|ginseng|sedmokr|nechtik|marigold|ostruzin|zihlav|reishi|shiitake|hliv|huby|mushroom",
    "key": "bylinky",
    "name": "Bylinky a koreniny",
    "category": "prisada",
@@ -606,7 +606,7 @@ export const RULES: RulesData = {
    "sensitivity": null
   },
   {
-   "rx": "rastlinn\\w* bielkovin|extrakt\\w* rastlinn|bielkovinov[yý] (izolat|extrakt)|rastlinny protein|rastlinne proteiny",
+   "rx": "rostlinn\\w* bilkovin|rastlinn\\w* bielkovin|extrakt\\w* rastlinn|bielkovinov[yý] (izolat|extrakt)|rastlinny protein|rastlinne proteiny",
    "key": "rastlinna-bielkovina-nespec",
    "name": "Rastlinná bielkovina (bez uvedenia zdroja)",
    "category": "ine",
@@ -656,7 +656,7 @@ export const RULES: RulesData = {
    "sensitivity": null
   },
   {
-   "rx": "klinoptilol|zeolit|bentonit|rasel|humin|humac|montmorillon|kremelin|diatom",
+   "rx": "fulvo|fulvov|klinoptilol|zeolit|bentonit|rasel|humin|humac|montmorillon|kremelin|diatom",
    "key": "ilove-mineraly",
    "name": "Íly a ílové minerály (zeolit, rašelina, humínové látky)",
    "category": "vitaminy_mineraly",
@@ -666,7 +666,7 @@ export const RULES: RulesData = {
    "sensitivity": null
   },
   {
-   "rx": "^vlaknin|rastlinn[aá] vlaknin|^vlaknina|psylli|cukrovarsk[eé] rezk",
+   "rx": "skrupin|^vlaknin|rastlinn[aá] vlaknin|^vlaknina|psylli|cukrovarsk[eé] rezk",
    "key": "vlaknina-rastlinna",
    "name": "Rastlinná vláknina",
    "category": "vlaknina",
@@ -848,7 +848,7 @@ export const RULES: RulesData = {
    "allergen": null
   }
  ],
- "FISH_GENERIC": "\\bryb|\\bryby|fish",
+ "FISH_GENERIC": "\\bryb|\\bryby|fish|menhaden",
  "POULTRY_GENERIC": "hydin|drub|poultry",
  "MEAT_GENERIC": "\\bmas[oa]\\b|\\bmaso\\b|meat|\\bmase\\b|masov",
  "JUNK": "^(\\d+([.,]\\d+)? ?kg\\b|\\)|zlozky$|prirodne prisady|zlozenie|slozeni|= ?prirodn|prirodne zlozky|vlhkost|popol|hrub[ya] (popol|vlaknina|tuk|protein)|dostupne balenia|kompletne krmivo|dopln?kove krmivo|susene$|cerstve$|pridavne|technologick|nutricne|analyticke|obsah|metabolizovatel|energia|semena$|semienka$)",
