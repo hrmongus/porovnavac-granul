@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import AnalyzerForm from './components/AnalyzerForm';
+import Wizard from './components/Wizard';
 import Star from './components/Star';
 
 export default function Home() {
@@ -11,10 +11,10 @@ export default function Home() {
         <Star />
       </div>
       <p className="lead">
-        Odfoť alebo vlož zloženie z obalu. Rozložíme ho na jednotlivé zložky, každú ohodnotíme a vysvetlíme.
-        Hodnotíme iba text zloženia podľa <Link href="/metodika">metodiky</Link>, nie značku.
+        Vyber granule, odpovedz na pár otázok o psovi a dozvieš sa, či je to dobré jedlo, či sedí tvojmu psovi a koľko mu dávať.
+        Hodnotíme iba zloženie podľa <Link href="/metodika">verejnej metodiky</Link>, rovnako pre všetky značky.
       </p>
-      <AnalyzerForm />
+      <Wizard />
     </>
   );
 }

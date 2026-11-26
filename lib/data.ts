@@ -26,7 +26,11 @@ export interface ReferenceData {
   aliases: AliasMap;
   ingredients: DbIngredient[];
   marketScores: number[]; // zoradené vzostupne, bez značiek
+  marketMeatMedian: number | null; // medián odhadu % mäsa (len produkty s uvedenými percentami)
+  catalog: CatalogItem[]; // na vyhľadávanie (značka + názov)
 }
+
+export interface CatalogItem { id: number; brand: string; name: string; search: string }
 
 let cache: { at: number; data: ReferenceData } | null = null;
 const TTL_MS = 10 * 60 * 1000;
@@ -42,9 +46,16 @@ export async function loadReferenceData(sb: SupabaseClient = publicClient()): Pr
     const ing = byId.get(a.ingredient_id);
     if (ing) aliases.set(a.alias, ing);
   }
-  const scores = await fetchAll<{ score_total: number | null }>(sb, 'products', 'score_total');
-  const marketScores = scores.map((s) => s.score_total).filter((s): s is number => s !== null).sort((a, b) => a - b);
-  const data = { aliases, ingredients, marketScores };
+  const rows = await fetchAll<{ id: number; name: string; score_total: number | null; meat_percent_est: number | null; brands: { name: string } | null }>(
+    sb, 'products', 'id, name, score_total, meat_percent_est, brands(name)');
+  const marketScores = rows.map((s) => s.score_total).filter((s): s is number => s !== null).sort((a, b) => a - b);
+  const meats = rows.map((s) => s.meat_percent_est).filter((s): s is number => s !== null).sort((a, b) => a - b);
+  const marketMeatMedian = meats.length ? Math.round(meats.length % 2 ? meats[(meats.length - 1) / 2] : (meats[meats.length / 2 - 1] + meats[meats.length / 2]) / 2) : null;
+  const catalog = rows.map((r) => {
+    const brand = r.brands?.name ?? '';
+    return { id: r.id, brand, name: r.name, search: normalizeSearch(`${brand} ${r.name}`) };
+  });
+  const data = { aliases, ingredients, marketScores, marketMeatMedian, catalog };
   cache = { at: Date.now(), data };
   return data;
 }
@@ -54,4 +65,9 @@ export function percentileBelow(score: number, marketScores: number[]): number {
   if (marketScores.length === 0) return 0;
   const lower = marketScores.filter((s) => s < score).length;
   return Math.round((lower / marketScores.length) * 100);
+}
+
+/** Text na vyhľadávanie: malé písmená, bez diakritiky a interpunkcie. */
+export function normalizeSearch(s: string): string {
+  return s.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 }

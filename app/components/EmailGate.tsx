@@ -5,14 +5,14 @@ import Link from 'next/link';
 import Turnstile, { turnstileEnabled } from './Turnstile';
 import { CONSENT_MARKETING_TEXT, RESULT_ONLY_TEXT } from '@/lib/consent';
 
-export default function EmailGate({ analysisId }: { analysisId: string }) {
+/** Okno pred výsledkom: meno a e-mail sú povinné, súhlas s marketingom dobrovoľný a nezaškrtnutý. */
+export default function EmailGate({ analysisId, dogName }: { analysisId: string; dogName?: string }) {
   const router = useRouter();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [dogName, setDogName] = useState('');
   const [consent, setConsent] = useState(false); // vždy nezaškrtnuté
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState<null | { emailSent: boolean }>(null);
   const [token, setToken] = useState<string | null>(null);
   const onToken = useCallback((t: string | null) => setToken(t), []);
 
@@ -24,40 +24,29 @@ export default function EmailGate({ analysisId }: { analysisId: string }) {
       const r = await fetch('/api/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ analysisId, email, dogName, consentMarketing: consent, turnstileToken: token }),
+        body: JSON.stringify({ analysisId, name, email, consentMarketing: consent, turnstileToken: token }),
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j.error ?? 'Odoslanie sa nepodarilo.');
-      setDone({ emailSent: j.emailSent });
+      router.push(`/vysledok/${analysisId}`);
       router.refresh();
     } catch (err) {
       setError((err as Error).message);
-    } finally {
       setBusy(false);
     }
   }
 
-  if (done) {
-    return (
-      <div className="notice" role="status">
-        {done.emailSent
-          ? `Celý rozbor sme poslali na ${email}. Nájdeš ho aj nižšie.`
-          : 'Celý rozbor je zobrazený nižšie. E-mail sa momentálne nepodarilo odoslať, odkaz na túto stránku si ulož.'}
-      </div>
-    );
-  }
-
   return (
-    <form className="card stack" onSubmit={submit} aria-labelledby="gate-title">
-      <h3 id="gate-title">Celý rozbor <span className="hl">na e-mail</span></h3>
-      <p>Pošleme ti vysvetlenie všetkých zložiek, porovnanie s trhom a trvalý odkaz na výsledok.</p>
+    <form className="card shadow stack" onSubmit={submit} aria-labelledby="gate-title">
+      <h3 id="gate-title">Výsledok {dogName ? <>pre psa <span className="hl">{dogName}</span> </> : ''}je hotový</h3>
+      <p>Napíš meno a e-mail. Výsledok sa ti hneď zobrazí a kópiu pošleme aj na e-mail.</p>
       <div>
-        <label htmlFor="email">E-mail</label>
-        <input id="email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <label htmlFor="gate-name">Tvoje meno</label>
+        <input id="gate-name" type="text" required minLength={2} maxLength={120} autoComplete="given-name" value={name} onChange={(e) => setName(e.target.value)} />
       </div>
       <div>
-        <label htmlFor="dog">Meno psa <span className="hint">(nepovinné)</span></label>
-        <input id="dog" type="text" maxLength={80} value={dogName} onChange={(e) => setDogName(e.target.value)} />
+        <label htmlFor="gate-email">E-mail</label>
+        <input id="gate-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
       </div>
       <label className="checkbox">
         <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
@@ -69,7 +58,7 @@ export default function EmailGate({ analysisId }: { analysisId: string }) {
       <Turnstile onToken={onToken} />
       {error && <p className="error" role="alert">{error}</p>}
       <button className="btn kobalt" type="submit" disabled={busy || (turnstileEnabled && !token)}>
-        {busy ? 'Odosielam…' : 'Poslať celý rozbor'}
+        {busy ? 'Odosielam…' : 'Zobraziť výsledok'}
       </button>
     </form>
   );

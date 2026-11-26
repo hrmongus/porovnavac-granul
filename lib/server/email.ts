@@ -48,6 +48,22 @@ export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, re
   const market = result.percentile === null ? ''
     : `<p>Porovnanie s trhom: lepšie ako <strong>${result.percentile} %</strong> z ${result.market_count} granúl na slovenskom trhu (zber 2026-11).</p>`;
   const caps = result.caps.length ? `<p style="color:#555">Uplatnené obmedzenia: ${result.caps.map(esc).join('; ')}.</p>` : '';
+  // Analyzér 2.0: ako sedí psovi, dávka, hlavné zistenia, ukazovatele
+  const icon = { ok: '✅', plus: '✅', warn: '⚠️', no: '❌' } as const;
+  const fit = result.fit ? `<div style="border:1.6px solid #000;background:#fff;padding:12px 14px;margin:14px 0">
+      <p style="margin:0 0 6px;font-weight:900;text-transform:uppercase">${icon[result.fit.level]} ${esc(result.fit.title)}${dogName ? ` pre psa ${esc(dogName)}` : ''}</p>
+      ${result.fit.reasons.map((x) => `<div>${icon[x.level]} ${esc(x.text)}</div>`).join('')}
+      ${result.dose ? `<p style="margin:8px 0 0"><strong>Odporúčaná dávka: cca ${result.dose.grams} g denne</strong> (odhad). Začni touto dávkou a podľa váhy dolaď o ±10 %.</p>` : ''}
+      ${result.fit.vetNote ? '<p style="margin:6px 0 0;font-size:12px;color:#3d3d3d">Nie je to veterinárna rada.</p>' : ''}
+    </div>` : '';
+  const finds = result.findings && (result.findings.good.length + result.findings.bad.length) ? `<ul style="padding-left:18px;margin:10px 0">
+      ${result.findings.good.map((t) => `<li><strong>+</strong> ${esc(t)}</li>`).join('')}
+      ${result.findings.bad.map((t) => `<li><strong>−</strong> ${esc(t)}</li>`).join('')}
+    </ul>` : '';
+  const inds = result.indicators?.length ? `<table style="width:100%;border-collapse:collapse;font-size:14px;margin:10px 0">
+      ${result.indicators.map((i) => `<tr><td style="padding:4px 0;font-weight:700">${esc(i.label)}</td><td style="padding:4px 0;text-align:right">${chip(colorOf(i.points), esc(i.word))}</td></tr>`).join('')}
+    </table>` : '';
+
   const consentBox = consentGiven
     ? `<p style="font-size:12px;color:#3d3d3d">Novinky od Granuly už nechceš dostávať? <a href="${appUrl()}/suhlas?akcia=odvolat&t=${signToken('revoke', leadId)}">Odvolať súhlas</a>.</p>`
     : `<p style="font-size:13px;color:#3d3d3d">Ak chceš od Granuly dostávať aj novinky a ponuky, súhlas môžeš potvrdiť tu: <a style="color:#0047BB" href="${appUrl()}/suhlas?akcia=potvrdit&t=${signToken('consent', leadId)}">Potvrdiť súhlas</a>. Bez neho ti iné správy neposielame.</p>`;
@@ -57,7 +73,7 @@ export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, re
     <div style="background:#FFF7EE;border:1.6px solid #000;padding:20px">
     <h1 style="font-size:24px;font-weight:900;text-transform:uppercase;line-height:1.05;margin:0 0 8px">Rozbor zloženia${dogName ? ` pre <span style="color:#0047BB">${esc(dogName)}</span>` : ''}</h1>
     <p style="font-size:22px;font-weight:900;text-transform:uppercase;margin:14px 0">${scoreLine}</p>
-    ${market}${caps}
+    ${market}${fit}${finds}${inds}${caps}
     <p style="margin:18px 0"><a href="${link}" style="display:inline-block;background:#0047BB;color:#F4EBE2;border:1.6px solid #0047BB;padding:12px 20px;font-weight:900;text-transform:uppercase;text-decoration:none">Otvoriť rozbor →</a></p>
     <table style="width:100%;border-collapse:collapse;font-size:14px;border-top:1.6px solid #000">${rows}</table>
     <p style="font-size:13px;color:#3d3d3d;margin-top:16px">Hodnotíme iba text zloženia podľa verejnej <a style="color:#0047BB" href="${appUrl()}/metodika">metodiky</a> (verzia ${esc(result.methodology_version)}). Farba je vždy doplnená textom a číslom.</p>
@@ -74,6 +90,9 @@ export function buildResultEmail({ dogName, analysisId, leadId, consentGiven, re
     `Rozbor zloženia${dogName ? ` pre ${dogName}` : ''}`,
     result.score === null ? 'Skóre sa nedalo vypočítať.' : `${result.verdict} ${result.score}/100`,
     result.percentile === null ? '' : `Lepšie ako ${result.percentile} % granúl na slovenskom trhu.`,
+    result.fit ? `${result.fit.title}: ${result.fit.reasons.map((x) => x.text).join(' ')}` : '',
+    result.dose ? `Odporúčaná dávka: cca ${result.dose.grams} g denne (odhad).` : '',
+    ...(result.findings ? [...result.findings.good.map((t) => `+ ${t}`), ...result.findings.bad.map((t) => `- ${t}`)] : []),
     `Trvalý odkaz: ${link}`,
     '',
     ...result.items.map((it) => `${it.position}. ${it.raw} – ${chipText(it.color, it.score)}\n   ${it.explanation}`),

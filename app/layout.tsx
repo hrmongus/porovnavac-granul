@@ -14,6 +14,7 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   title: { default: 'Analyzér zloženia granúl', template: '%s · Analyzér zloženia granúl' },
   description: 'Rozbor zloženia granúl pre psov podľa verejnej metodiky. Hodnotí iba zložky z textu zloženia, nie značky.',
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

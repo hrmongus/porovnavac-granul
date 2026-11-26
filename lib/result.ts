@@ -1,13 +1,19 @@
-import type { AnalysisResult, AnalyzedItem } from './scoring/analyze';
+import type { AnalysisResult } from './scoring/analyze';
 import type { Color } from './scoring/rules';
+import type { Fit, Indicator } from './v2/report';
 
-/** Uložený výsledok (analyses.result). */
+/** Uložený výsledok (analyses.result). Polia z analyzéra 2.0 sú voliteľné kvôli starším analýzam. */
 export interface StoredResult extends AnalysisResult {
   percentile: number | null; // „lepšie ako X % granúl“
   market_count: number;
+  product?: { brand: string; name: string; composition_date: string | null; source: string | null } | null;
+  fit?: Fit;
+  dose?: { grams: number; estimatedEnergy: boolean } | null;
+  findings?: { good: string[]; bad: string[] };
+  indicators?: Indicator[];
+  carbs?: number | null;
+  market_meat_median?: number | null;
 }
-
-export const FREE_EXPLANATIONS = 3;
 
 export const COLOR_NAME: Record<Color, string> = {
   zelena: 'Zelená',
@@ -29,28 +35,6 @@ export const COLOR_LEGEND: { color: Color; range: string; text: string }[] = [
   { color: 'cervena', range: '0–49', text: 'Nejasný pôvod, umelá prísada alebo zložka, ktorá v kvalitnom krmive nemá čo hľadať' },
   { color: 'seda', range: '–', text: 'Zložku zatiaľ nepoznáme; nehodnotí sa a doplníme ju' },
 ];
-
-export interface ViewItem extends Omit<AnalyzedItem, 'explanation'> {
-  explanation: string | null; // null = skryté (brána e-mailu)
-}
-
-export interface ResultView extends Omit<StoredResult, 'items'> {
-  items: ViewItem[];
-  locked: boolean;
-}
-
-/** Verzia pre obrazovku zadarmo: vysvetlenie len pri prvých 3 zložkách, percentil skrytý. */
-export function toView(r: StoredResult, unlocked: boolean): ResultView {
-  return {
-    ...r,
-    percentile: unlocked ? r.percentile : null,
-    locked: !unlocked,
-    items: r.items.map((it, i) => ({
-      ...it,
-      explanation: unlocked || i < FREE_EXPLANATIONS ? it.explanation : null,
-    })),
-  };
-}
 
 export function sensitivityNote(s: string | null, explanation?: string | null): string | null {
   if (explanation && /alerg/i.test(explanation)) return null; // vysvetlenie to už uvádza
