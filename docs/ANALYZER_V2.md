@@ -172,3 +172,14 @@ Kontrolné prípady:
 - Pes s citlivým trávením, analyzovaná Granula Morka, hus & kačica → hodí sa 85 → odporučí sa Jahňa (ak má 100) s dôvodom „jeden druh mäsa“.
 - Ten istý pes, analyzované Jahňa (100) → žiadne odporúčanie, len „hodia sa na 100 %“ a tlačidlo objednať.
 - Pes bez zvláštnych potrieb, analyzovaná iná značka s „hodí sa“ 100 → žiadne odporúčanie.
+
+## 11. Obrázky balení (rozhodnutie majiteľky, 27. 11. 2026)
+
+- `products.image_url` (migrácia `20261127000000_product_images.sql`, dáta `supabase/data/obrazky_produktov.sql`):
+  URL obrázka u pôvodného zdroja (e-shop/výrobca). Súbor sa k nám **nesťahuje ani neukladá** – zobrazuje sa priamo z tej adresy.
+- **Vyhľadávanie:** pri každom návrhu štvorec 48 × 48 px vľavo od názvu; **výsledok:** obrázok 120 px pri názve produktu.
+- `<img src={image_url} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer">`, `object-fit: contain`,
+  pozadie `--g-mlieko-light`, rámik 1.6 px čierny, bez zaoblenia. Nepoužívaj `next/image` optimalizáciu (`unoptimized`) – obrázok sa nemá kopírovať cez náš server.
+- Ak obrázok chýba alebo sa nenačíta (`onError`): dlaždica s 2 písmenami značky (napr. „RC“), kobaltové pozadie, text `--g-mlieko`, rovnaká veľkosť.
+- Ak je nastavená Content-Security-Policy, `img-src` musí povoliť `https:`.
+- 9 položiek, ktoré nie sú granule (pochúťky, mlieko, sušené ovocie), dáta skryjú (`is_active = false`).
