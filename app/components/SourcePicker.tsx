@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import ProductImage from './ProductImage';
 import { displayName, nameWithoutBrand } from '@/lib/product-name';
 
 export type Source =
@@ -8,7 +9,7 @@ export type Source =
   | { kind: 'text'; text: string; fromPhoto: boolean; hint: string };
 
 type Mode = 'hladat' | 'foto' | 'text';
-interface Hit { id: number; brand: string; name: string }
+interface Hit { id: number; brand: string; name: string; image_url: string | null }
 interface Detail extends Hit { composition_date: string | null; source: string | null }
 
 /** Zmenší fotku v prehliadači (rýchlejšie odoslanie, menej dát). */
@@ -116,7 +117,7 @@ export default function SourcePicker({ onReady, token, consumeToken }: {
             <ul className="hits" role="listbox" aria-label="Návrhy">
               {shownHits.map((h) => (
                 <li key={h.id}>
-                  <button type="button" onClick={() => pick(h)}><strong>{h.brand}</strong> {nameWithoutBrand(h.brand, h.name)}</button>
+                  <button type="button" onClick={() => pick(h)}><ProductImage url={h.image_url} brand={h.brand} size={48} /><span><strong>{h.brand}</strong> {nameWithoutBrand(h.brand, h.name)}</span></button>
                 </li>
               ))}
             </ul>
@@ -131,7 +132,7 @@ export default function SourcePicker({ onReady, token, consumeToken }: {
 
       {mode === 'hladat' && picked && (
         <div className="stack">
-          <p className="picked"><strong>{picked.brand}</strong> {nameWithoutBrand(picked.brand, picked.name)}</p>
+          <div className="picked-row"><ProductImage url={picked.image_url} brand={picked.brand} size={48} /><p className="picked"><strong>{picked.brand}</strong> {nameWithoutBrand(picked.brand, picked.name)}</p></div>
           <p className="hint">
             Zloženie podľa etikety, stav k {fmtDate(picked.composition_date)}. Zdroj: {picked.source ?? 'neuvedený'}. Výrobca mohol recept zmeniť.{' '}
             <Link href="/nahlasit-chybu">Nahlásiť chybu</Link>

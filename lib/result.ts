@@ -7,7 +7,7 @@ import type { GranulaPick } from './v2/granula';
 export interface StoredResult extends AnalysisResult {
   percentile: number | null; // „lepšie ako X % granúl“
   market_count: number;
-  product?: { brand: string; name: string; composition_date: string | null; source: string | null } | null;
+  product?: { brand: string; name: string; composition_date: string | null; source: string | null; image_url?: string | null } | null;
   fit?: Fit;
   granula?: GranulaPick;
   dose?: { grams: number; estimatedEnergy: boolean } | null;

@@ -30,16 +30,18 @@ export async function POST(req: Request) {
   let inputType: 'vyhladanie' | 'text' | 'foto';
   let productId: number | null = null;
   let productHint: string | null = null;
+  let productImage: string | null = null;
   let product: ProductInfo | null = null;
   const productIdIn = Number(body.productId);
   if (productIdIn > 0) {
     const { data } = await publicClient().from('products')
-      .select('id, name, composition_raw, composition_date, source_url, analytical_raw, energy_raw, life_stage, nutritional_additives_raw, trace_elements_raw, brands(name)')
+      .select('id, name, composition_raw, composition_date, source_url, analytical_raw, energy_raw, life_stage, nutritional_additives_raw, trace_elements_raw, image_url, brands(name)')
       .eq('id', productIdIn).maybeSingle();
     if (!data) return jsonError('Produkt sa nenašiel.', 404);
     text = data.composition_raw;
     inputType = 'vyhladanie';
     productId = data.id;
+    productImage = data.image_url;
     product = {
       brand: (data.brands as unknown as { name: string } | null)?.name ?? '',
       name: data.name, composition_date: data.composition_date, source_url: data.source_url,
@@ -69,7 +71,7 @@ export async function POST(req: Request) {
     ...r,
     percentile: r.score === null ? null : percentileBelow(r.score, ref.marketScores),
     market_count: ref.marketScores.length,
-    product: product && { brand: product.brand, name: product.name, composition_date: product.composition_date, source: sourceDomain },
+    product: product && { brand: product.brand, name: product.name, composition_date: product.composition_date, source: sourceDomain, image_url: productImage },
     fit,
     granula,
     dose,

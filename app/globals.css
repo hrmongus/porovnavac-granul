@@ -247,3 +247,13 @@ textarea { min-height: 180px; resize: vertical; }
 /* Nenápadný riadok Granula úplne dole (bod 9.1, časť 5) */
 .granula-footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid #c9c1b7; font-size: 13px; color: #3d3d3d; }
 .granula-footer a { font-weight: 600; }
+
+/* Obrázky balení (bod 11) */
+.pimg { display: inline-flex; flex: none; object-fit: contain; background: var(--g-mlieko-light); border: var(--line); border-radius: 0; }
+.pimg-tile { align-items: center; justify-content: center; background: var(--g-kobalt); color: var(--g-mlieko); font-weight: 900; letter-spacing: .03em; }
+.pimg-48.pimg-tile { font-size: 15px; }
+.pimg-120.pimg-tile { font-size: 34px; }
+.hits button { display: flex; align-items: center; gap: 12px; }
+.picked-row { display: flex; align-items: center; gap: 12px; }
+.product-line { display: flex; align-items: center; gap: 14px; margin-top: 12px; }
+.product-line p { margin: 0; }

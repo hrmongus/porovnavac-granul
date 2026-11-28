@@ -30,7 +30,7 @@ export interface ReferenceData {
   catalog: CatalogItem[]; // na vyhľadávanie (značka + názov)
 }
 
-export interface CatalogItem { id: number; brand: string; name: string; search: string }
+export interface CatalogItem { id: number; brand: string; name: string; search: string; image_url: string | null }
 
 let cache: { at: number; data: ReferenceData } | null = null;
 const TTL_MS = 10 * 60 * 1000;
@@ -46,14 +46,14 @@ export async function loadReferenceData(sb: SupabaseClient = publicClient()): Pr
     const ing = byId.get(a.ingredient_id);
     if (ing) aliases.set(a.alias, ing);
   }
-  const rows = await fetchAll<{ id: number; name: string; score_total: number | null; meat_percent_est: number | null; brands: { name: string } | null }>(
-    sb, 'products', 'id, name, score_total, meat_percent_est, brands(name)');
+  const rows = await fetchAll<{ id: number; name: string; score_total: number | null; meat_percent_est: number | null; image_url: string | null; brands: { name: string } | null }>(
+    sb, 'products', 'id, name, score_total, meat_percent_est, image_url, brands(name)');
   const marketScores = rows.map((s) => s.score_total).filter((s): s is number => s !== null).sort((a, b) => a - b);
   const meats = rows.map((s) => s.meat_percent_est).filter((s): s is number => s !== null).sort((a, b) => a - b);
   const marketMeatMedian = meats.length ? Math.round(meats.length % 2 ? meats[(meats.length - 1) / 2] : (meats[meats.length / 2 - 1] + meats[meats.length / 2]) / 2) : null;
   const catalog = rows.map((r) => {
     const brand = r.brands?.name ?? '';
-    return { id: r.id, brand, name: r.name, search: normalizeSearch(`${brand} ${r.name}`) };
+    return { id: r.id, brand, name: r.name, search: normalizeSearch(`${brand} ${r.name}`), image_url: r.image_url };
   });
   const data = { aliases, ingredients, marketScores, marketMeatMedian, catalog };
   cache = { at: Date.now(), data };

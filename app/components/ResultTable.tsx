@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { displayName, nameWithoutBrand } from '@/lib/product-name';
 import ClickableIngredients from './IngredientList';
+import ProductImage from './ProductImage';
 import { COLOR_LEGEND, COLOR_NAME, type StoredResult } from '@/lib/result';
 import { colorOf } from '@/lib/scoring/rules';
 
@@ -23,7 +24,12 @@ export function ScoreBox({ r }: { r: StoredResult }) {
       <div>
         <p className="verdict">{r.score}/100 · {r.verdict}</p>
         {r.percentile !== null && <p>Lepšie ako {r.percentile} % granúl na slovenskom trhu.</p>}
-        {r.product && <p className="hint"><strong>{r.product.brand}</strong> {nameWithoutBrand(r.product.brand, r.product.name)}</p>}
+        {r.product && (
+          <div className="product-line">
+            <ProductImage url={r.product.image_url} brand={r.product.brand} size={120} />
+            <p><strong>{r.product.brand}</strong> {nameWithoutBrand(r.product.brand, r.product.name)}</p>
+          </div>
+        )}
       </div>
     </div>
   );

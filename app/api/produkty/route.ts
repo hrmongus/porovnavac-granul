@@ -9,12 +9,12 @@ export async function GET(req: Request) {
   const id = Number(url.searchParams.get('id'));
   if (id > 0) {
     const { data } = await publicClient().from('products')
-      .select('id, name, composition_date, source_url, brands(name)').eq('id', id).maybeSingle();
+      .select('id, name, composition_date, source_url, image_url, brands(name)').eq('id', id).maybeSingle();
     if (!data) return jsonError('Produkt sa nenašiel.', 404);
     const brand = (data.brands as unknown as { name: string } | null)?.name ?? '';
     let domain: string | null = null;
     try { domain = data.source_url ? new URL(data.source_url).hostname.replace(/^www\./, '') : null; } catch { domain = null; }
-    return Response.json({ id: data.id, brand, name: data.name, composition_date: data.composition_date, source: domain });
+    return Response.json({ id: data.id, brand, name: data.name, composition_date: data.composition_date, source: domain, image_url: data.image_url });
   }
 
   const q = normalizeSearch(url.searchParams.get('q') ?? '').slice(0, 80);
@@ -27,7 +27,7 @@ export async function GET(req: Request) {
     // len podľa zhody s napísaným textom; pri rovnakej zhode kratší (presnejší) názov, potom abecedne
     .sort((x, y) => y.score - x.score || x.p.search.length - y.p.search.length || x.p.search.localeCompare(y.p.search))
     .slice(0, 10)
-    .map(({ p: { id: pid, brand, name } }) => ({ id: pid, brand, name }));
+    .map(({ p: { id: pid, brand, name, image_url } }) => ({ id: pid, brand, name, image_url }));
   return Response.json({ items });
 }
 
